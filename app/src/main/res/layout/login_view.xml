@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/books"
-    android:backgroundTint="#81D6D7D7"
-    android:backgroundTintMode="src_over"
     android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/background_image"
+        android:scaleType="centerCrop"
+        android:src="@drawable/books" />
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,11 +26,11 @@
             android:drawableStart="@drawable/menu_book_white"
             android:drawablePadding="4dp"
             android:gravity="center_horizontal|center_vertical"
-            android:text="TutorMe"
+            android:text="@string/app_name"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textColorHighlight="#FFFFFF"
-            android:textSize="24dp"
+            android:textSize="24sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -37,25 +42,25 @@
         android:paddingBottom="20dp">
 
         <Button
-            android:id="@+id/create_account"
+            android:id="@+id/create_account_button"
             android:layout_width="350dp"
             android:layout_height="64dp"
             android:layout_gravity="center_horizontal"
             android:backgroundTint="#4D8598"
             android:fontFamily="sans-serif"
-            android:text="Create Account"
+            android:text="@string/create_account"
             android:textColor="#FFFFFF"
             android:textSize="24sp"
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/facebook_log_in"
+            android:id="@+id/facebook_log_in_button"
             android:layout_width="350dp"
             android:layout_height="64dp"
             android:layout_gravity="center_horizontal"
             android:backgroundTint="#3F5BA9"
             android:fontFamily="sans-serif"
-            android:text="log in with facebook"
+            android:text="@string/log_in_with_facebook"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="#F9F9F9"
@@ -63,4 +68,4 @@
             android:textStyle="bold" />
 
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>

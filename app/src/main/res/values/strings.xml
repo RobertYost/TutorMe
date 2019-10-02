@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">TutorMe</string>
     <string name="action_settings">Settings</string>
+    <string name="create_account">Create Account</string>
+    <string name="log_in_with_facebook">log in with facebook</string>
+    <string name="background_image">background image</string>
 </resources>
