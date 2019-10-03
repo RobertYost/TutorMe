@@ -10,4 +10,10 @@
     <string name="firstNamePlaceholder">John</string>
     <string name="lastNamePlaceholder">Doe</string>
     <string name="lastNameLbl">Last Name</string>
+    <string name="emailLbl">E-mail</string>
+    <string name="emailPlaceholder">john.doe@email.com</string>
+    <string name="passwordLbl">Password</string>
+    <string name="passwordConfLabel">Confirm Password</string>
+    <string name="schoolLbl">School</string>
+    <string name="submitBtn">SUBMIT</string>
 </resources>
