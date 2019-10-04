@@ -4,6 +4,7 @@
     <string name="create_account">Create Account</string>
     <string name="log_in_with_facebook">log in with facebook</string>
     <string name="background_image">background image</string>
+    <string name="sign_in_text">Already have an account? <b><u>sign in</u></b> </string>
 
     <!-- RegistrationActivity Strings -->
     <string name="firstNameLbl">First Name</string>
