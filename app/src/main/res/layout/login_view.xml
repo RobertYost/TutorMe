@@ -53,21 +53,17 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <Button
+        <ImageButton
             android:id="@+id/facebook_log_in_button"
             android:layout_width="350dp"
             android:layout_height="64dp"
             android:layout_gravity="center_horizontal"
-            android:backgroundTint="#3F5BA9"
-            android:height="20dp"
-            android:width="20dp"
-            android:fontFamily="sans-serif"
-            android:text="@string/log_in_with_facebook"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="#F9F9F9"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:adjustViewBounds="false"
+            android:background="#2E448C"
+            android:contentDescription="@string/log_in_with_facebook"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/fb_log_in" />
 
         <TextView
             android:id="@+id/sign_in_text_view"
