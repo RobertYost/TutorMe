@@ -6,6 +6,8 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,7 +25,9 @@ class MainActivity : AppCompatActivity() {
         signInTextView = findViewById(R.id.sign_in_text_view)
 
         createAccountButton.setOnClickListener { view: View ->
-            //TODO: go to account creation page
+            val intent = Intent(this, RegistrationActivity::class.java)
+            // start your next activity
+            startActivity(intent)
         }
         facebookLogInButton.setOnClickListener { view: View ->
             //TODO: log in with facebook
@@ -31,6 +35,21 @@ class MainActivity : AppCompatActivity() {
         signInTextView.setOnClickListener {view: View ->
             //TODO: go to sign in page
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.i("STATE", "onResume")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.i("STATE", "onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i("STATE", "onDestroy")
     }
 
 }
