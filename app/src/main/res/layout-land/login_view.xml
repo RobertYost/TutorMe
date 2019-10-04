@@ -75,7 +75,5 @@
             android:textAlignment="center"
             android:textColor="#050200"
             android:textStyle="bold" />
-
-
     </LinearLayout>
 </FrameLayout>
