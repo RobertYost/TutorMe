@@ -1,6 +1,7 @@
 package com.example.tutorme
 
 import android.os.Bundle
+import android.content.Intent
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -13,12 +14,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_view)
+        print("Created Login Activity")
 
         createAccountButton = findViewById(R.id.create_account_button)
         facebookLogInButton = findViewById(R.id.facebook_log_in_button)
 
         createAccountButton.setOnClickListener { view: View ->
-            //TODO: go to account creation page
+
+            val intent = Intent(this, RegistrationActivity::class.java)
+            // start your next activity
+            startActivity(intent)
         }
         facebookLogInButton.setOnClickListener { view: View ->
             //TODO: log in with facebook
@@ -29,6 +34,16 @@ class MainActivity : AppCompatActivity() {
                 .setAction("Action", null).show()
         }
          */
+    }
+
+    override fun onPause() {
+        super.onPause()
+        print("Paused Login Activity")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        print("Resumed Login Activity")
     }
 
     /*
