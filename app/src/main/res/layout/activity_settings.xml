@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SettingsActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="24dp"
+                android:text="@string/action_settings"
+                android:textColor="#030000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/firstNameLbl"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                android:textColor="#030000"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/settings_first_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                tools:text="John"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/lastNameLbl"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                android:textColor="#030000"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/settings_last_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                tools:text="Doe"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/emailLbl"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                android:textColor="#030000"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/settings_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                tools:text="john.doe@email.com"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/schoolLbl"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                android:textColor="#030000"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/settings_school"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                tools:text="The Ohio State University"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/currency"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                android:textColor="#030000"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/settings_currency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                tools:text="$30.00/hr"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_picture_url"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                android:textColor="#030000"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/settings_profile_picture_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                tools:text="johndoe.com/profilepic"/>
+            <!-- this obviously wont be in the final version -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/passwordLbl"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                android:textColor="#030000"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/settings_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                tools:text="abc123"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:padding="20dp">
+
+                <Button
+                    android:id="@+id/settings_edit_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center"
+                    android:text="@string/edit_button" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
