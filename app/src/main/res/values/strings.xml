@@ -18,6 +18,9 @@
     <string name="schoolLbl">School</string>
     <string name="submitBtn">SUBMIT</string>
 
+    <!-- SwipeActivity -->
+    <string name="user_avatar_description">A user\'s avatar</string>
+
     <!-- SettingsActivity -->
     <string name="profile_picture_url">Profile Picture URL</string>
     <string name="currency">Currency</string>

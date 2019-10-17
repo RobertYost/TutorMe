@@ -7,9 +7,12 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:backgroundTint="#1F1818"
+        android:backgroundTintMode="multiply"
         android:contentDescription="@string/background_image"
         android:scaleType="centerCrop"
-        android:src="@drawable/books" />
+        android:src="@drawable/books"
+        android:tint="#004D4545" />
 
 
     <LinearLayout
@@ -73,7 +76,7 @@
             android:padding="6dp"
             android:text="@string/sign_in_text"
             android:textAlignment="center"
-            android:textColor="#050200"
+            android:textColor="#FFFFFF"
             android:textStyle="bold" />
 
 
