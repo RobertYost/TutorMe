@@ -47,6 +47,8 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 // Successfully signed in
                 val user = FirebaseAuth.getInstance().currentUser
+                val intent = Intent(this, SwipeActivity::class.java)
+                startActivity(intent)
                 // Navigate to new activity
             } else {
                 // Sign in failed. If response is null the user canceled the sign-in flow using

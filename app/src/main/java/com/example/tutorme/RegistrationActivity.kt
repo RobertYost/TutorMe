@@ -31,7 +31,7 @@ class RegistrationActivity : AppCompatActivity() {
         submitBtn = findViewById(R.id.submitBtn)
 
         submitBtn.setOnClickListener { view: View ->
-            // TODO: Create account
+            // TODO: Create account (May be obsolete with the new FirebaseAuth)
             val intent = Intent(this, SwipeActivity::class.java)
             startActivity(intent)
         }

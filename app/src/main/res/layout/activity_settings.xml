@@ -87,21 +87,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="20dp"
                 tools:text="The Ohio State University"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/currency"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="20dp"
-                android:textColor="#030000"
-                android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/settings_currency"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="20dp"
-                tools:text="$30.00/hr"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -26,7 +26,6 @@ class SettingsActivity : AppCompatActivity() {
         lastNameTextView = findViewById(R.id.settings_last_name)
         emailTextView = findViewById(R.id.settings_email)
         schoolTextView = findViewById(R.id.settings_school)
-        currencyTextView = findViewById(R.id.settings_currency)
         profilePictureUrlTextView = findViewById(R.id.settings_profile_picture_url)
         passwordTextView = findViewById(R.id.settings_password)
 
