@@ -3,6 +3,7 @@ package com.example.tutorme
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import com.example.tutorme.databinding.ActivitySettingsBinding
@@ -38,6 +39,15 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.settingsEditButton.setOnClickListener{
             val intent = Intent(this, EditSettingsActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.deleteAccButton.setOnClickListener{
+            db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
+                .delete()
+                .addOnSuccessListener { Log.d("DELETE", "DocumentSnapshot successfully deleted!") }
+                .addOnFailureListener { e -> Log.w("DEBUG", "Error deleting document", e) }
+            val intent = Intent(this, SwipeActivity::class.java)
             startActivity(intent)
         }
     }

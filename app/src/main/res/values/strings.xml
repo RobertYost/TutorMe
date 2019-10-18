@@ -30,6 +30,7 @@
     <string name="profile_picture_url">Profile Picture URL</string>
     <string name="currency">Currency</string>
     <string name="edit_button">Edit</string>
+    <string name="delete_acc_button">Delete Account</string>
 
     <!-- editSettingsActivity -->
     <string name="save_button">Save</string>
