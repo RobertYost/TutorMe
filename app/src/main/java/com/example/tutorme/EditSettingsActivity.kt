@@ -29,11 +29,11 @@ class EditSettingsActivity : AppCompatActivity() {
             oldSettings = documentSnapshot.toObject(Student::class.java)
 
 //          userExists = true
-            binding.editSettingsFirstName?.setText(oldSettings?.first_name)
-            binding.editSettingsLastName?.setText(oldSettings?.last_name)
-            binding.editSettingsPassword?.setText(oldSettings?.password)
-            binding.editSettingsProfilePic?.setText(oldSettings?.profile_picture_url)
-            binding.editSettingsSchool?.setText(oldSettings?.school)
+            binding.editSettingsFirstName.setText(oldSettings?.first_name)
+            binding.editSettingsLastName.setText(oldSettings?.last_name)
+            binding.editSettingsPassword.setText(oldSettings?.password)
+            binding.editSettingsProfilePic.setText(oldSettings?.profile_picture_url)
+            binding.editSettingsSchool.setText(oldSettings?.school)
         }
 
 
