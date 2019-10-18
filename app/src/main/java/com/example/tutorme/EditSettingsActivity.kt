@@ -21,8 +21,9 @@ class EditSettingsActivity : AppCompatActivity() {
 
         val db = FirebaseFirestore.getInstance()
 
-        val student = db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
-        var oldSettings : Student?
+        val student =
+            db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
+        var oldSettings: Student?
 //        var userExists = false
         student.get().addOnSuccessListener { documentSnapshot ->
             oldSettings = documentSnapshot.toObject(Student::class.java)
@@ -47,7 +48,8 @@ class EditSettingsActivity : AppCompatActivity() {
             )
 
             // Adds or updates the document to the students collection based on the login email used
-            db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid).set(settings)
+            db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
+                .set(settings)
 
             //TODO: Update vs. Create (Currently works fine as is, maybe change for NFR Checkpoint)
 //            if(!userExists){

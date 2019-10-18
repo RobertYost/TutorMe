@@ -8,7 +8,7 @@ import kotlinx.android.synthetic.main.user_row.view.*
 
 class UserListAdapter : RecyclerView.Adapter<UserCellViewHolder>() {
 
-    val users = listOf<String>("Bobby", "Ryan", "Andrew")
+    private val users = listOf("Bobby", "Ryan", "Andrew")
 
     // numberOfItems
     override fun getItemCount(): Int {
@@ -22,11 +22,9 @@ class UserListAdapter : RecyclerView.Adapter<UserCellViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: UserCellViewHolder, position: Int) {
-        val user = users.get(position)
+        val user = users[position]
         holder.itemView.textViewName.text = user
     }
 }
 
-class UserCellViewHolder(val v: View) : RecyclerView.ViewHolder(v) {
-
-}
+class UserCellViewHolder(v: View) : RecyclerView.ViewHolder(v)

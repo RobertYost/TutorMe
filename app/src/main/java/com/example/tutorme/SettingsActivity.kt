@@ -5,31 +5,18 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import com.example.tutorme.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var editButton: Button
-    private lateinit var firstNameTextView: TextView
-    private lateinit var lastNameTextView: TextView
-    private lateinit var emailTextView: TextView
-    private lateinit var schoolTextView: TextView
-    private lateinit var currencyTextView: TextView
-    private lateinit var profilePictureUrlTextView: TextView
-    private lateinit var passwordTextView: TextView
+    private lateinit var binding: ActivitySettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        editButton = findViewById(R.id.settings_edit_button)
-        firstNameTextView = findViewById(R.id.settings_first_name)
-        lastNameTextView = findViewById(R.id.settings_last_name)
-        emailTextView = findViewById(R.id.settings_email)
-        schoolTextView = findViewById(R.id.settings_school)
-        profilePictureUrlTextView = findViewById(R.id.settings_profile_picture_url)
-        passwordTextView = findViewById(R.id.settings_password)
-
-        editButton.setOnClickListener{
+        binding.settingsEditButton.setOnClickListener{
             val intent = Intent(this, EditSettingsActivity::class.java)
             startActivity(intent)
         }
