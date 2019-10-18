@@ -18,6 +18,10 @@
     <string name="schoolLbl">School</string>
     <string name="submitBtn">SUBMIT</string>
 
+    <!-- Facebook application ID and custom URL scheme (app ID prefixed by 'fb'). -->
+    <string name="facebook_application_id" translatable="false">253050605628339</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb253050605628339</string>
+
     <!-- SwipeActivity -->
     <string name="user_avatar_description">A user\'s avatar</string>
 
