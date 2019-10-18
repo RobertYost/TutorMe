@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutorme.databinding.ActivitySwipeBinding
 import kotlinx.android.synthetic.main.activity_swipe.*
 
+private const val TAG = "SwipeActivity"
+
 class SwipeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySwipeBinding
@@ -19,7 +21,7 @@ class SwipeActivity : AppCompatActivity() {
         binding.recViewUserList.layoutManager = LinearLayoutManager(this)
         binding.recViewUserList.adapter = UserListAdapter()
 
-        binding.settingBtn.setOnClickListener{
+        binding.settingBtn.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }

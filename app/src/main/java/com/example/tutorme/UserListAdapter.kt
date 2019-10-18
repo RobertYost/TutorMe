@@ -4,11 +4,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.user_row.view.*
 
 class UserListAdapter : RecyclerView.Adapter<UserCellViewHolder>() {
 
     private val users = listOf("Bobby", "Ryan", "Andrew")
+    val db = FirebaseFirestore.getInstance()
 
     // numberOfItems
     override fun getItemCount(): Int {
