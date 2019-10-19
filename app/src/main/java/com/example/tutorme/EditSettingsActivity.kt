@@ -1,13 +1,11 @@
 package com.example.tutorme
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tutorme.databinding.ActivityEditSettingsBinding
 import com.example.tutorme.models.Student
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 
 class EditSettingsActivity : AppCompatActivity() {
 
@@ -31,7 +29,7 @@ class EditSettingsActivity : AppCompatActivity() {
 //          userExists = true
             binding.editSettingsFirstName.setText(oldSettings?.first_name)
             binding.editSettingsLastName.setText(oldSettings?.last_name)
-            binding.editSettingsPassword.setText(oldSettings?.password)
+//            binding.editSettingsPassword.setText(oldSettings?.password)
             binding.editSettingsProfilePic.setText(oldSettings?.profile_picture_url)
             binding.editSettingsSchool.setText(oldSettings?.school)
         }

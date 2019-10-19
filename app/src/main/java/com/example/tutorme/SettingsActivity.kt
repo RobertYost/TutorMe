@@ -1,13 +1,12 @@
 package com.example.tutorme
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.tutorme.databinding.ActivitySettingsBinding
 import com.example.tutorme.models.Student
+import com.example.tutorme.swipe_view.SwipeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -32,7 +31,7 @@ class SettingsActivity : AppCompatActivity() {
 
             binding.settingsFirstName.text = oldSettings?.first_name
             binding.settingsLastName.text = oldSettings?.last_name
-            binding.settingsPassword.text = oldSettings?.password
+//            binding.settingsPassword.text = oldSettings?.password
             binding.settingsProfilePictureUrl.text = oldSettings?.profile_picture_url
             binding.settingsSchool.text = oldSettings?.school
         }
