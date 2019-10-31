@@ -9,6 +9,8 @@ import com.example.tutorme.swipe_view.SwipeActivity
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.core.FirestoreClient
 
 
 private const val TAG = "MainActivity"
@@ -18,7 +20,6 @@ class MainActivity : AppCompatActivity() {
     private fun createSignInIntent() {
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build(),
-            AuthUI.IdpConfig.PhoneBuilder().build(),
             AuthUI.IdpConfig.GoogleBuilder().build(),
             AuthUI.IdpConfig.FacebookBuilder().build()
         )
@@ -47,10 +48,23 @@ class MainActivity : AppCompatActivity() {
 
             if (resultCode == Activity.RESULT_OK) {
                 // Successfully signed in
-                val user = FirebaseAuth.getInstance().currentUser
-                // Navigate to new activity
-                val intent = Intent(this, SwipeActivity::class.java)
-                startActivity(intent)
+                val db = FirebaseFirestore.getInstance()
+                db.collection("users")
+                    .whereEqualTo("email", FirebaseAuth.getInstance().currentUser?.email)
+                    .get()
+                    .addOnSuccessListener {
+                        val intent = if (it.isEmpty) {
+                            Intent(this, EditSettingsActivity::class.java)
+                            intent.putExtra(
+                                "user_email",
+                                FirebaseAuth.getInstance().currentUser?.email
+                            )
+                        } else {
+                            Intent(this, SwipeActivity::class.java)
+                        }
+                        Log.d(TAG, it.toString())
+                        startActivity(intent)
+                    }
             } else {
                 // Sign in failed. If response is null the user canceled the sign-in flow using
                 // the back button. Otherwise check response.getError().getErrorCode() and handle

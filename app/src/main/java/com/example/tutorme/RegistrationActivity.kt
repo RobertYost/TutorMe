@@ -16,8 +16,11 @@ class RegistrationActivity : AppCompatActivity() {
         binding = ActivityRegistrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val email = intent.getStringExtra("user_email")
+
+        binding.emailTxt.setText(email)
+
         binding.submitBtn.setOnClickListener { view: View ->
-            // TODO: Create account (May be obsolete with the new FirebaseAuth)
             val intent = Intent(this, SwipeActivity::class.java)
             startActivity(intent)
         }

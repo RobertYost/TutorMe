@@ -23,13 +23,10 @@ class EditSettingsActivity : AppCompatActivity() {
             db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
         var oldSettings: Student?
 //        var userExists = false
-        student.get().addOnSuccessListener { documentSnapshot ->
-            oldSettings = documentSnapshot.toObject(Student::class.java)
-
-//          userExists = true
+        student.get().addOnSuccessListener {
+            oldSettings = it.toObject(Student::class.java)
             binding.editSettingsFirstName.setText(oldSettings?.first_name)
             binding.editSettingsLastName.setText(oldSettings?.last_name)
-//            binding.editSettingsPassword.setText(oldSettings?.password)
             binding.editSettingsProfilePic.setText(oldSettings?.profile_picture_url)
             binding.editSettingsSchool.setText(oldSettings?.school)
         }
