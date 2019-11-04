@@ -44,26 +44,48 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == RC_SIGN_IN) {
-            val response = IdpResponse.fromResultIntent(data)
+//            val response = IdpResponse.fromResultIntent(data)
 
             if (resultCode == Activity.RESULT_OK) {
                 // Successfully signed in
                 val db = FirebaseFirestore.getInstance()
+
+                var intentChoice = "swipe"
+                Log.d("DEBUG", FirebaseAuth.getInstance().currentUser!!.uid)
+                val docRef = db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
+                docRef.get()
+                    .addOnSuccessListener { document ->
+                        if (document.data.toString() == "null") {
+                            Log.d("DEBUG", "DOCUMENT NOT NULL")
+                            intentChoice = "edit"
+                        } else {
+                            Log.d("DEBUG", document.data.toString())
+                        }
+                    }
+                    .addOnFailureListener{exception ->
+                        Log.d(TAG, "get failed with ", exception)
+                    }
+
                 db.collection("users")
                     .whereEqualTo("email", FirebaseAuth.getInstance().currentUser?.email)
                     .get()
                     .addOnSuccessListener {
                         val intent = if (it.isEmpty) {
-                            Intent(this, EditSettingsActivity::class.java)
                             intent.putExtra(
                                 "user_email",
                                 FirebaseAuth.getInstance().currentUser?.email
                             )
+                            if (intentChoice == "swipe") {
+                                Intent(this, SwipeActivity::class.java)
+                            } else{
+                                Intent(this, EditSettingsActivity::class.java)
+                            }
+
                         } else {
                             Intent(this, SwipeActivity::class.java)
                         }
                         Log.d(TAG, it.toString())
-                        startActivity(intent)
+                        startActivity(intent as Intent?)
                     }
             } else {
                 // Sign in failed. If response is null the user canceled the sign-in flow using

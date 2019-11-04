@@ -1,9 +1,12 @@
 package com.example.tutorme
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tutorme.databinding.ActivityEditSettingsBinding
 import com.example.tutorme.models.Student
+import com.example.tutorme.swipe_view.SwipeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -13,6 +16,8 @@ class EditSettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditSettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        Log.d("EditSettingsActivity", "Created EditSettingsActivity")
         super.onCreate(savedInstanceState)
         binding = ActivityEditSettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -45,6 +50,10 @@ class EditSettingsActivity : AppCompatActivity() {
             // Adds or updates the document to the students collection based on the login email used
             db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
                 .set(settings)
+
+            // Redirects back to the tutor list page after saving
+            val intent = Intent(this, SwipeActivity::class.java)
+            startActivity(intent)
 
             //TODO: Update vs. Create (Currently works fine as is, maybe change for NFR Checkpoint)
 //            if(!userExists){
