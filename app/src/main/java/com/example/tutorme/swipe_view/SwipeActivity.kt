@@ -44,5 +44,6 @@ class SwipeActivity : AppCompatActivity() {
         val options = builder.build()
         val adapter = UserListAdapter(options)
         binding.recViewUserList.adapter = adapter
+
     }
 }
