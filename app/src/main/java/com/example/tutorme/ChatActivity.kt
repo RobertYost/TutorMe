@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.example.tutorme.models.ChatMessage
+import com.example.tutorme.models.Student
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -16,9 +17,12 @@ import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.from_chat_row.view.*
 import kotlinx.android.synthetic.main.to_chat_row.view.*
 
+private const val TAG = "chat"
+
 class ChatActivity : AppCompatActivity() {
 
     val adapter = GroupAdapter<GroupieViewHolder>()
+    var toStudent: Student? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +40,10 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun listenForMessages(){
-        val ref = FirebaseDatabase.getInstance().getReference("/messages")
+        val fromId = FirebaseAuth.getInstance().currentUser?.uid
+        //TODO( get toId for other user)
+        val toId = "Replace this with the other users uid"
+        val ref = FirebaseDatabase.getInstance().getReference("/messages/$fromId/$toId")
 
         ref.addChildEventListener(object: ChildEventListener{
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
@@ -49,18 +56,10 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }
             }
-
-            override fun onCancelled(p0: DatabaseError) {
-            }
-
-            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-            }
-
-            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-            }
-
-            override fun onChildRemoved(p0: DataSnapshot) {
-            }
+            override fun onCancelled(p0: DatabaseError) {}
+            override fun onChildChanged(p0: DataSnapshot, p1: String?) {}
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {}
+            override fun onChildRemoved(p0: DataSnapshot) {}
         })
     }
 
@@ -69,14 +68,19 @@ class ChatActivity : AppCompatActivity() {
         //TODO( get toId for other user)
         val toId = "Replace this with the other users uid"
         val textMessage = edittext_chat.text.toString()
-        val ref = FirebaseDatabase.getInstance().getReference("/messages").push()
-        val chatMessage = ChatMessage(ref.key!!, textMessage, fromId!!, toId, System.currentTimeMillis()/1000)
+        val fromRef = FirebaseDatabase.getInstance().getReference("/messages/$fromId/$toId").push()
+        val toRef = FirebaseDatabase.getInstance().getReference("/messages/$toId/$fromId").push()
 
-        ref.setValue(chatMessage).addOnSuccessListener {
-            Log.d("chat", "Message saved")
+        val chatMessage = ChatMessage(fromRef.key!!, textMessage, fromId!!, toId, System.currentTimeMillis()/1000)
+
+        toRef.setValue(chatMessage).addOnSuccessListener {
+            Log.d(TAG, "Message saved")
         }.addOnFailureListener{
-            Log.d("chat", "Failed to save message")
+            Log.d(TAG, "Failed to save message")
         }
+
+        fromRef.setValue(chatMessage)
+
     }
 }
 

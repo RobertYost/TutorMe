@@ -84,6 +84,7 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         val options = builder.build()
         val adapter = UserListAdapter(options)
         binding.recViewUserList.adapter = adapter
+
     }
 
     override fun onBackPressed() {
