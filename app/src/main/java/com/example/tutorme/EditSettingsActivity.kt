@@ -40,6 +40,7 @@ class EditSettingsActivity : AppCompatActivity() {
         binding.editSettingsSaveButton.setOnClickListener {
             // Prepares the settings based on the fields
             val settings = hashMapOf(
+                "id" to FirebaseAuth.getInstance().currentUser!!.uid,
                 "first_name" to binding.editSettingsFirstName.text.toString(),
                 "last_name" to binding.editSettingsLastName.text.toString(),
                 "password" to binding.editSettingsPassword.text.toString(),

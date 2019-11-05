@@ -28,6 +28,7 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_add_class -> {
+//                TODO: Redirect to the AddClassActivity
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
             }
@@ -71,6 +72,7 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             startActivity(intent)
         }
 
+        // TODO: Change this query to only match with the tutors of the student's classes
         val query = FirebaseFirestore.getInstance().collection("students")
 
         val builder = FirestoreRecyclerOptions.Builder<Student>()
