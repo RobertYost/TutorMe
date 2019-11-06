@@ -3,17 +3,20 @@ package com.example.tutorme
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tutorme.databinding.ActivityEditSettingsBinding
 import com.example.tutorme.models.Student
-import com.example.tutorme.swipe_view.SwipeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.tutorme.R
+import com.example.tutorme.swipe_view.SwipeActivity
 
 class EditSettingsActivity : AppCompatActivity() {
 
     // Using view-binding from arch-components (requires Android Studio 3.6 Canary 11+)
     private lateinit var binding: ActivityEditSettingsBinding
+    private lateinit var theSchool: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -24,38 +27,53 @@ class EditSettingsActivity : AppCompatActivity() {
 
         val db = FirebaseFirestore.getInstance()
 
+        theSchool = "default"
+
         val student =
             db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
         var oldSettings: Student?
 //        var userExists = false
         student.get().addOnSuccessListener {
             oldSettings = it.toObject(Student::class.java)
+            binding.editSettingsEmail.setText(FirebaseAuth.getInstance().currentUser?.email)
             binding.editSettingsFirstName.setText(oldSettings?.first_name)
             binding.editSettingsLastName.setText(oldSettings?.last_name)
             binding.editSettingsProfilePic.setText(oldSettings?.profile_picture_url)
-            binding.editSettingsSchool.setText(oldSettings?.school)
+            if(oldSettings != null){
+                theSchool = oldSettings?.school.toString()
+                binding.editSettingsSchool.text = oldSettings?.school
+            }
         }
 
 
         binding.editSettingsSaveButton.setOnClickListener {
-            // Prepares the settings based on the fields
-            val settings = hashMapOf(
-                "id" to FirebaseAuth.getInstance().currentUser!!.uid,
-                "first_name" to binding.editSettingsFirstName.text.toString(),
-                "last_name" to binding.editSettingsLastName.text.toString(),
-                "password" to binding.editSettingsPassword.text.toString(),
-                "profile_picture_url" to binding.editSettingsProfilePic.text.toString(),
-                "school" to binding.editSettingsSchool.text.toString()
-            )
 
-            // Adds or updates the document to the students collection based on the login email used
-            db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
-                .set(settings)
+            println("Thing1: ${binding.editSettingsSchool.text}\n" +
+                    "Thing2: ${theSchool}")
 
-            // Redirects back to the tutor list page after saving
-            val intent = Intent(this, SwipeActivity::class.java)
-            startActivity(intent)
+            // If the school hasn't been selected or info is missing, refuse the save
+            if(theSchool == "default" || binding.editSettingsFirstName.length() == 0){
+                Toast.makeText(this, "Please make sure to select your school and " +
+                        "enter your name!", Toast.LENGTH_SHORT).show()
+            } else {
+                // Prepares the settings based on the fields
+                val settings = hashMapOf(
+                    "id" to FirebaseAuth.getInstance().currentUser!!.uid,
+                    "first_name" to binding.editSettingsFirstName.text.toString(),
+                    "last_name" to binding.editSettingsLastName.text.toString(),
+                    "profile_picture_url" to binding.editSettingsProfilePic.text.toString(),
+                    "school" to binding.editSettingsSchool.text.toString()
+                )
 
+                // Adds or updates the document to the students collection based on the login email used
+                db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
+                    .set(settings)
+
+                // Redirects back to the tutor list page after saving
+                val intent = Intent(this, SwipeActivity::class.java)
+                startActivity(intent)
+
+            }
             //TODO: Update vs. Create (Currently works fine as is, maybe change for NFR Checkpoint)
 //            if(!userExists){
 //                Log.d("DEBUG", "Should have created user")

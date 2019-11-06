@@ -1,7 +1,6 @@
 package com.example.tutorme.models
 
 import android.os.Parcelable
-import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.PropertyName
 import kotlinx.android.parcel.Parcelize
 

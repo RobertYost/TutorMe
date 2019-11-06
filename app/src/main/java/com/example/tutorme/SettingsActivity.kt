@@ -28,10 +28,8 @@ class SettingsActivity : AppCompatActivity() {
             oldSettings = documentSnapshot.toObject(Student::class.java)
 
             binding.settingsEmail?.text = FirebaseAuth.getInstance().currentUser?.email
-
             binding.settingsFirstName.text = oldSettings?.first_name
             binding.settingsLastName.text = oldSettings?.last_name
-//            binding.settingsPassword.text = oldSettings?.password
             binding.settingsProfilePictureUrl.text = oldSettings?.profile_picture_url
             binding.settingsSchool.text = oldSettings?.school
         }
