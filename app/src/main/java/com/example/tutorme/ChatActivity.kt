@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.from_chat_row.view.*
 import kotlinx.android.synthetic.main.to_chat_row.view.*
 
-private const val TAG = "chat"
+private const val TAG = "chatAct"
 
 class ChatActivity : AppCompatActivity() {
 
@@ -28,7 +28,8 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        supportActionBar?.title = "Chat"
+        toStudent = intent.getParcelableExtra<Student>(ChatListActivity.USER_KEY)
+        supportActionBar?.title = toStudent?.first_name + " " +toStudent?.last_name
 
         recycleview_chat.adapter = adapter
 
@@ -41,20 +42,20 @@ class ChatActivity : AppCompatActivity() {
 
     private fun listenForMessages(){
         val fromId = FirebaseAuth.getInstance().currentUser?.uid
-        //TODO( get toId for other user)
-        val toId = "Replace this with the other users uid"
+        val toId = toStudent?.id
         val ref = FirebaseDatabase.getInstance().getReference("/messages/$fromId/$toId")
-
         ref.addChildEventListener(object: ChildEventListener{
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val chatMessage = p0.getValue(ChatMessage::class.java)
                 if (chatMessage != null){
                     if(chatMessage.fromId == FirebaseAuth.getInstance().currentUser?.uid){
+                        Log.d(TAG, "Create new From row")
                         adapter.add(ChatFromItem(chatMessage.text))
                     } else {
                         adapter.add(ChatToItem(chatMessage.text))
                     }
                 }
+                recycleview_chat.scrollToPosition(adapter.itemCount - 1)
             }
             override fun onCancelled(p0: DatabaseError) {}
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {}
@@ -65,13 +66,13 @@ class ChatActivity : AppCompatActivity() {
 
     private fun performSendMessage(){
         val fromId = FirebaseAuth.getInstance().currentUser?.uid
-        //TODO( get toId for other user)
-        val toId = "Replace this with the other users uid"
+        val toId = toStudent?.id
         val textMessage = edittext_chat.text.toString()
         val fromRef = FirebaseDatabase.getInstance().getReference("/messages/$fromId/$toId").push()
         val toRef = FirebaseDatabase.getInstance().getReference("/messages/$toId/$fromId").push()
 
-        val chatMessage = ChatMessage(fromRef.key!!, textMessage, fromId!!, toId, System.currentTimeMillis()/1000)
+        val chatMessage = ChatMessage(fromRef.key!!, textMessage, fromId!!, toId!!, System.currentTimeMillis()/1000)
+        Log.d(TAG, "attempting to send message: ${chatMessage.text}")
 
         toRef.setValue(chatMessage).addOnSuccessListener {
             Log.d(TAG, "Message saved")
@@ -87,6 +88,7 @@ class ChatActivity : AppCompatActivity() {
 class ChatFromItem(val text: String): Item<GroupieViewHolder>(){
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         viewHolder.itemView.from_textview_chat.text = text
+        Log.d(TAG , "Created From row with: $text")
     }
 
     override fun getLayout(): Int {
