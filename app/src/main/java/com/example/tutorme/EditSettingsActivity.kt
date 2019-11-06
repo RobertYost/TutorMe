@@ -29,6 +29,12 @@ class EditSettingsActivity : AppCompatActivity() {
 
         theSchool = "default"
 
+        val thisIntent = intent
+        if (thisIntent.getStringExtra("school") != null) {
+            theSchool = thisIntent.getStringExtra("school")!!
+            binding.editSettingsSchool.text = theSchool
+        }
+
         val student =
             db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
         var oldSettings: Student?
@@ -42,9 +48,15 @@ class EditSettingsActivity : AppCompatActivity() {
             if(oldSettings != null){
                 theSchool = oldSettings?.school.toString()
                 binding.editSettingsSchool.text = oldSettings?.school
+                binding.editSchoolBtn.isEnabled = false
             }
         }
 
+        binding.editSchoolBtn.setOnClickListener {
+                // Redirects back to the tutor list page after saving
+                val intent = Intent(this, SchoolListActivity::class.java)
+                startActivity(intent)
+        }
 
         binding.editSettingsSaveButton.setOnClickListener {
 
@@ -72,7 +84,6 @@ class EditSettingsActivity : AppCompatActivity() {
                 // Redirects back to the tutor list page after saving
                 val intent = Intent(this, SwipeActivity::class.java)
                 startActivity(intent)
-
             }
             //TODO: Update vs. Create (Currently works fine as is, maybe change for NFR Checkpoint)
 //            if(!userExists){
@@ -83,5 +94,15 @@ class EditSettingsActivity : AppCompatActivity() {
 //            }
 
         }
+    }
+
+    override fun onResume() {
+        val thisIntent = intent
+        if (thisIntent.getStringExtra("school") != null) {
+            theSchool = thisIntent.getStringExtra("school")!!
+            binding.editSettingsSchool.text = theSchool
+        }
+        super.onResume()
+
     }
 }

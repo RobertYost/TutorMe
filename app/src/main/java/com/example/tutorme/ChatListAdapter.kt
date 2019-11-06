@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tutorme.models.ChatLog
-import com.example.tutorme.models.Student
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.FirebaseFirestore
@@ -39,7 +38,7 @@ class ChatListAdapter(options: FirestoreRecyclerOptions<ChatLog>) :
                     documentSnapshot.getString("last_name").toString()
             Log.d("DEBUGLOG", str)
             holder.containerView.apply {
-                nameTextView.text = str
+                primaryTextView.text = str
             }
         }
     }

@@ -49,6 +49,35 @@
     <string name="draw_placeholder">placeholder</string>
     <string name="draw_profile_pic_desc">This is your profile picture</string>
 
+    <!--  activity_school_list.xml  -->
+    <string name="correct_school">Select suggested school</string>
+    <string name="add_new_school">Add a school</string>
+    <string name="suggested_school_label">"GPS-based suggested school: "</string>
+    <string name="suggested_school_placeholder">None</string>
+
+    <!--  activity_add_school.xml  -->
+    <string name="add_school_header">Add your school</string>
+    <string name="add_school_name_label">University Name</string>
+    <string name="add_school_short_name_label">Shortened Uni Name</string>
+    <string name="uniNamePlaceholder">The Ohio State University</string>
+    <string name="shortUniNamePlaceholder">OSU</string>
+    <string name="locationLabel">Location</string>
+    <string name="locationPlaceholder">Unable to fetch location. Please enable Location permissions</string>
+    <string name="add_school_button">Add School</string>
+
+    <!--  activity_add_class.xml  -->
+    <string name="add_class_header">Add your class</string>
+    <string name="add_class_major_label">Major</string>
+    <string name="add_class_course_number_label">Course Number</string>
+    <string name="addClassMajorHint">CSE</string>
+    <string name="addClassCourseNumHint">5236</string>
+    <string name="add_class_tutor_q">Are you tutoring this class?</string>
+    <string name="add_class_button">Add Class</string>
+    <string name="add_class_yes">Yes</string>
+    <string name="add_class_no">No</string>
+    <string name="add_class_price_hint">10.00</string>
+    <string name="add_class_price_label">Tutor rate (N/A if not tutoring)</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="content_description_profile_picture">profile picture</string>

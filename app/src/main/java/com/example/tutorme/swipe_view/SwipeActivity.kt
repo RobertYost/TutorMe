@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.tutorme.AddClassActivity
 import com.example.tutorme.ChatListActivity
 import com.example.tutorme.R
 import com.example.tutorme.SettingsActivity
@@ -29,7 +30,7 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         when(item.itemId){
             R.id.nav_add_class -> {
 //                TODO: Redirect to the AddClassActivity
-                val intent = Intent(this, SettingsActivity::class.java)
+                val intent = Intent(this, AddClassActivity::class.java)
                 startActivity(intent)
             }
             R.id.nav_settings -> {
@@ -66,11 +67,6 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer.addDrawerListener(toggle)
         toggle.syncState()
-
-        binding.settingBtn.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-        }
 
         // TODO: Change this query to only match with the tutors of the student's classes
         val query = FirebaseFirestore.getInstance().collection("students")
