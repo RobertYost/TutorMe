@@ -25,10 +25,10 @@ class ChatListActivity : AppCompatActivity() {
 
     companion object {
         var currentUser: Student? = null
-        val USER_KEY = "USER_KEY"
+        const val USER_KEY = "USER_KEY"
     }
 
-    val adapter = GroupAdapter<GroupieViewHolder>()
+    private val adapter = GroupAdapter<GroupieViewHolder>()
     val latestMessagesMap = HashMap<String, ChatMessage>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +46,6 @@ class ChatListActivity : AppCompatActivity() {
         }
 
         listenForLatestMessage()
-
         fetchCurrentUser()
     }
 
@@ -81,21 +80,17 @@ class ChatListActivity : AppCompatActivity() {
     }
 
     private fun fetchCurrentUser(){
-        val uid = FirebaseAuth.getInstance().uid
-        val ref = FirebaseDatabase.getInstance().getReference("/user/$uid")
-        ref.addListenerForSingleValueEvent(object: ValueEventListener {
-            override fun onCancelled(p0: DatabaseError) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        FirebaseFirestore.getInstance().collection("students")
+            .document(uid!!).get()
+            .addOnSuccessListener {
+                currentUser = it.toObject(Student::class.java)
             }
-            override fun onDataChange(p0: DataSnapshot) {
-                currentUser = p0.getValue(Student::class.java)
-            }
-
-        })
     }
 
 }
 
-class LatestMessageRow(val chatMessage: ChatMessage): Item<GroupieViewHolder>(){
+class LatestMessageRow(private val chatMessage: ChatMessage): Item<GroupieViewHolder>(){
 
     var chatPartnerUser: Student? = null
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
@@ -105,15 +100,13 @@ class LatestMessageRow(val chatMessage: ChatMessage): Item<GroupieViewHolder>(){
         } else {
             chatMessage.fromId
         }
+        FirebaseFirestore.getInstance().collection("students")
+            .document(chatPartnerId).get()
+            .addOnSuccessListener {
+                chatPartnerUser = it.toObject(Student::class.java)
+                viewHolder.itemView.user_name_textview_latestmessage.text = "${chatPartnerUser?.first_name} ${chatPartnerUser?.last_name}"
+        }
 
-        val ref = FirebaseDatabase.getInstance().getReference("/user/$chatPartnerId")
-        ref.addListenerForSingleValueEvent(object: ValueEventListener {
-            override fun onDataChange(p0: DataSnapshot) {
-                chatPartnerUser = p0.getValue(Student::class.java)
-                viewHolder.itemView.user_name_textview_latestmessage.text = chatPartnerUser?.first_name
-            }
-            override fun onCancelled(p0: DatabaseError) {}
-        })
     }
 
     override fun getLayout(): Int {

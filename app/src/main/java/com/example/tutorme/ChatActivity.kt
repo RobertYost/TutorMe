@@ -72,16 +72,13 @@ class ChatActivity : AppCompatActivity() {
         val toRef = FirebaseDatabase.getInstance().getReference("/messages/$toId/$fromId").push()
 
         val chatMessage = ChatMessage(fromRef.key!!, textMessage, fromId!!, toId!!, System.currentTimeMillis()/1000)
-        Log.d(TAG, "attempting to send message: ${chatMessage.text}")
-
-        toRef.setValue(chatMessage).addOnSuccessListener {
-            Log.d(TAG, "Message saved")
-        }.addOnFailureListener{
-            Log.d(TAG, "Failed to save message")
-        }
-
+        toRef.setValue(chatMessage)
         fromRef.setValue(chatMessage)
 
+        val latestMessageRef = FirebaseDatabase.getInstance().getReference("/latest-message/$fromId/$toId")
+        latestMessageRef.setValue(chatMessage)
+        val latestMessageToRef = FirebaseDatabase.getInstance().getReference("/latest-message/$toId/$fromId")
+        latestMessageToRef.setValue(chatMessage)
     }
 }
 
