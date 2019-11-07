@@ -29,7 +29,7 @@ class ChatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat)
 
         toStudent = intent.getParcelableExtra<Student>(ChatListActivity.USER_KEY)
-        supportActionBar?.title = toStudent?.first_name + " " +toStudent?.last_name
+        supportActionBar?.title = "${toStudent?.first_name} ${toStudent?.last_name}"
 
         recycleview_chat.adapter = adapter
 
@@ -37,6 +37,12 @@ class ChatActivity : AppCompatActivity() {
 
         send_button_chat.setOnClickListener {
             performSendMessage()
+        }
+
+        recycleview_chat.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if(oldBottom > bottom){
+                recycleview_chat.postDelayed({ recycleview_chat.smoothScrollToPosition(bottom) }, 100)
+            }
         }
     }
 
@@ -57,6 +63,7 @@ class ChatActivity : AppCompatActivity() {
                 }
                 recycleview_chat.scrollToPosition(adapter.itemCount - 1)
             }
+            //Not used but needed
             override fun onCancelled(p0: DatabaseError) {}
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {}
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {}
@@ -73,7 +80,10 @@ class ChatActivity : AppCompatActivity() {
 
         val chatMessage = ChatMessage(fromRef.key!!, textMessage, fromId!!, toId!!, System.currentTimeMillis()/1000)
         toRef.setValue(chatMessage)
-        fromRef.setValue(chatMessage)
+        fromRef.setValue(chatMessage).addOnSuccessListener {
+            edittext_chat.text.clear()
+            recycleview_chat.smoothScrollToPosition(adapter.itemCount - 1)
+        }
 
         val latestMessageRef = FirebaseDatabase.getInstance().getReference("/latest-message/$fromId/$toId")
         latestMessageRef.setValue(chatMessage)

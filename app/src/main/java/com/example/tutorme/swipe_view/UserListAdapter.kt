@@ -12,6 +12,7 @@ import com.example.tutorme.R
 import com.example.tutorme.models.Student
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.user_row.view.*
 
@@ -31,6 +32,9 @@ class UserListAdapter(options: FirestoreRecyclerOptions<Student>) :
         holder.containerView.setOnClickListener {
 
             //            TODO: Make this redirect to the tutor's profile page
+
+            //Don't allow user to create a chat with themselves
+            if(item.id == FirebaseAuth.getInstance().uid) return@setOnClickListener
             val intent = Intent(holder.containerView.context, ChatActivity::class.java)
             intent.putExtra(ChatListActivity.USER_KEY, item)
             holder.containerView.context.startActivity(intent)
