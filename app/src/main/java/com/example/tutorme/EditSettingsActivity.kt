@@ -3,6 +3,7 @@ package com.example.tutorme
 import android.app.Activity
 import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -14,7 +15,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.tutorme.R
 import com.example.tutorme.swipe_view.SwipeActivity
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_edit_settings.*
+import java.util.*
 
 private const val TAG = "editsettings"
 class EditSettingsActivity : AppCompatActivity() {
@@ -22,6 +25,8 @@ class EditSettingsActivity : AppCompatActivity() {
     // Using view-binding from arch-components (requires Android Studio 3.6 Canary 11+)
     private lateinit var binding: ActivityEditSettingsBinding
     private lateinit var theSchool: String
+    private lateinit var db: FirebaseFirestore
+    var selectedPhotoUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -30,8 +35,7 @@ class EditSettingsActivity : AppCompatActivity() {
         binding = ActivityEditSettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val db = FirebaseFirestore.getInstance()
-
+        db = FirebaseFirestore.getInstance()
         theSchool = "default"
 
         val thisIntent = intent
@@ -49,7 +53,6 @@ class EditSettingsActivity : AppCompatActivity() {
             binding.editSettingsEmail.setText(FirebaseAuth.getInstance().currentUser?.email)
             binding.editSettingsFirstName.setText(oldSettings?.first_name)
             binding.editSettingsLastName.setText(oldSettings?.last_name)
-            binding.editSettingsProfilePic.setText(oldSettings?.profile_picture_url)
             if(oldSettings != null){
                 theSchool = oldSettings?.school.toString()
                 binding.editSettingsSchool.text = oldSettings?.school
@@ -70,33 +73,7 @@ class EditSettingsActivity : AppCompatActivity() {
         }
 
         binding.editSettingsSaveButton.setOnClickListener {
-
-            println("Thing1: ${binding.editSettingsSchool.text}\n" +
-                    "Thing2: ${theSchool}")
-
-            // If the school hasn't been selected or info is missing, refuse the save
-            if(theSchool == "default" || binding.editSettingsFirstName.length() == 0){
-                Toast.makeText(this, "Please make sure to select your school and " +
-                        "enter your name!", Toast.LENGTH_SHORT).show()
-            } else {
-                // Prepares the settings based on the fields
-                val settings = hashMapOf(
-                    "id" to FirebaseAuth.getInstance().currentUser!!.uid,
-                    "first_name" to binding.editSettingsFirstName.text.toString(),
-                    "last_name" to binding.editSettingsLastName.text.toString(),
-                    "profile_picture_url" to binding.editSettingsProfilePic.text.toString(),
-                    "school" to binding.editSettingsSchool.text.toString()
-                )
-
-                // Adds or updates the document to the students collection based on the login email used
-                db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
-                    .set(settings)
-
-                // Redirects back to the tutor list page after saving
-                val intent = Intent(this, SwipeActivity::class.java)
-                startActivity(intent)
-            }
-
+            uploadImageToFirebaseStorage()
             //TODO: Update vs. Create (Currently works fine as is, maybe change for NFR Checkpoint)
 //            if(!userExists){
 //                Log.d("DEBUG", "Should have created user")
@@ -104,15 +81,52 @@ class EditSettingsActivity : AppCompatActivity() {
 //            } else {
 //                db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid).set(settings, SetOptions.merge())
 //            }
+        }
 
+    }
 
+    private fun saveUserToFireStore(profilePictureUrl: String){
+        // If the school hasn't been selected or info is missing, refuse the save
+        if(theSchool == "default" || binding.editSettingsFirstName.length() == 0){
+            Toast.makeText(this, "Please make sure to select your school and " +
+                    "enter your name!", Toast.LENGTH_SHORT).show()
+        } else {
+            // Prepares the settings based on the fields
+            val settings = hashMapOf(
+                "id" to FirebaseAuth.getInstance().currentUser!!.uid,
+                "first_name" to binding.editSettingsFirstName.text.toString(),
+                "last_name" to binding.editSettingsLastName.text.toString(),
+                "profile_picture_url" to profilePictureUrl,
+                "school" to binding.editSettingsSchool.text.toString()
+            )
+
+            // Adds or updates the document to the students collection based on the login email used
+            db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
+                .set(settings)
+
+            // Redirects back to the tutor list page after saving
+            val intent = Intent(this, SwipeActivity::class.java)
+            startActivity(intent)
         }
     }
+
+    private fun uploadImageToFirebaseStorage(){
+        if(selectedPhotoUri == null) return
+
+        val imageFileName = UUID.randomUUID().toString()
+        val ref = FirebaseStorage.getInstance().getReference("images/$imageFileName")
+        ref.putFile(selectedPhotoUri!!).addOnSuccessListener {
+            ref.downloadUrl.addOnSuccessListener {
+                saveUserToFireStore(it.toString())
+            }
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == 0 && resultCode == Activity.RESULT_OK && data != null){
-            val uri = data.data
-            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+            selectedPhotoUri = data.data
+            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedPhotoUri)
             val bitmapDrawable = BitmapDrawable(bitmap)
             profilePicImgView.setBackgroundDrawable(bitmapDrawable)
             select_photo_edit_settings.alpha = 0f
