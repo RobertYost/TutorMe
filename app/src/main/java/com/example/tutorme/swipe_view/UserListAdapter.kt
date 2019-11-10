@@ -9,10 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tutorme.ChatActivity
 import com.example.tutorme.ChatListActivity
 import com.example.tutorme.R
+import com.example.tutorme.SettingsActivity
 import com.example.tutorme.models.Student
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.squareup.picasso.Picasso
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.user_row.view.*
 
@@ -43,6 +45,11 @@ class UserListAdapter(options: FirestoreRecyclerOptions<Student>) :
         holder.containerView.apply {
             primaryTextView.text = "${item.first_name} ${item.last_name}"
             secondaryTextView.text = item.school
+            var profilePic = item.profile_picture_url
+            if(item.profile_picture_url == null || item.profile_picture_url!!.isEmpty()){
+                profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
+            }
+            Picasso.get().load(profilePic).into(profilepic_imageview_user_row)
         }
     }
 

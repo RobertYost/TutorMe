@@ -9,10 +9,18 @@ import com.example.tutorme.models.Student
 import com.example.tutorme.swipe_view.SwipeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_settings.*
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
+
+    companion object{
+        const val DEFUALT_PROFILE_PICTURE = "https://firebasestorage.googleapis.com/v0/b/tutorme-" +
+                "backend.appspot.com/o/images%2F44612a04-e07f-408b-a377-572670c82a33?alt=media&token" +
+                "=8515b3e0-d428-406e-a0dd-8324ae493c0c"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +40,15 @@ class SettingsActivity : AppCompatActivity() {
             binding.settingsLastName.text = oldSettings?.last_name
             binding.settingsProfilePictureUrl.text = oldSettings?.profile_picture_url
             binding.settingsSchool.text = oldSettings?.school
+
+            if(oldSettings?.profile_picture_url == null || oldSettings?.profile_picture_url!!.isEmpty()){
+                Picasso.get().load(DEFUALT_PROFILE_PICTURE).into(profile_imageview_settings)
+            }else{
+                Picasso.get().load(oldSettings?.profile_picture_url).into(profile_imageview_settings)
+            }
+
         }
+
 
         binding.settingsEditButton.setOnClickListener{
             val intent = Intent(this, EditSettingsActivity::class.java)
