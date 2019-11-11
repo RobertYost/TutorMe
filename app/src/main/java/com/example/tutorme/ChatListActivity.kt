@@ -1,11 +1,13 @@
 package com.example.tutorme
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.tutorme.databinding.ActivityChatListBinding
 import com.example.tutorme.models.ChatLog
 import com.example.tutorme.models.ChatMessage
@@ -93,6 +95,7 @@ class ChatListActivity : AppCompatActivity() {
 class LatestMessageRow(private val chatMessage: ChatMessage): Item<GroupieViewHolder>(){
 
     var chatPartnerUser: Student? = null
+    @SuppressLint("SetTextI18n")
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         viewHolder.itemView.latest_message_textview_latestmessage.text = chatMessage.text
         val chatPartnerId = if(chatMessage.fromId == FirebaseAuth.getInstance().uid){
@@ -105,6 +108,7 @@ class LatestMessageRow(private val chatMessage: ChatMessage): Item<GroupieViewHo
             .addOnSuccessListener {
                 chatPartnerUser = it.toObject(Student::class.java)
                 viewHolder.itemView.user_name_textview_latestmessage.text = "${chatPartnerUser?.first_name} ${chatPartnerUser?.last_name}"
+                Glide.with(viewHolder.itemView).load(chatPartnerUser?.profile_picture_url).into(viewHolder.itemView.profilepic_imageview_latest_message)
         }
 
     }

@@ -3,6 +3,9 @@ package com.example.tutorme
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -148,7 +151,7 @@ class EditSettingsActivity : AppCompatActivity() {
 
     }
 
-    private fun rotateImageIfNeeded(image: Bitmap, imageUri: Uri):Bitmap{
+    private fun rotateImageIfNeeded(image: Bitmap, imageUri: Uri): Bitmap {
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return image
         val input = contentResolver.openInputStream(imageUri)
         val exifInterface = ExifInterface(input!!)

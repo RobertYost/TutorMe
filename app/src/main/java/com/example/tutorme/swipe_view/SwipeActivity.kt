@@ -16,6 +16,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.annotation.SuppressLint
+import com.bumptech.glide.Glide
 import com.example.tutorme.*
 import com.example.tutorme.models.Class
 import com.firebase.ui.auth.AuthUI
@@ -90,7 +91,8 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     if (user?.profile_picture_url == null || user.profile_picture_url!!.isEmpty()) {
                         profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
                     }
-                    Picasso.get().load(profilePic).into(nav_profile_pic)
+                    //Picasso.get().load(profilePic).into(nav_profile_pic)
+                    Glide.with(this).load(profilePic).into(nav_profile_pic)
                 }
         }
 
