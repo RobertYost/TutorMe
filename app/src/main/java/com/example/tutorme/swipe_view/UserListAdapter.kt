@@ -6,23 +6,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.tutorme.ChatActivity
 import com.example.tutorme.ChatListActivity
 import com.example.tutorme.R
 import com.example.tutorme.SettingsActivity
-import com.example.tutorme.models.Class
 import com.example.tutorme.models.Student
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.squareup.picasso.Picasso
 import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.user_row.view.*
 
 
-class UserListAdapter(options: FirestoreRecyclerOptions<Class>) :
-    FirestoreRecyclerAdapter<Class, UserListAdapter.ViewHolder>(options) {
+class UserListAdapter(options: FirestoreRecyclerOptions<Student>) :
+    FirestoreRecyclerAdapter<Student, UserListAdapter.ViewHolder>(options) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -32,49 +32,31 @@ class UserListAdapter(options: FirestoreRecyclerOptions<Class>) :
     }
 
     @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(holder: ViewHolder, position: Int, item: Class) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, item: Student) {
         holder.containerView.setOnClickListener {
 
+            //            TODO: Make this redirect to the tutor's profile page
+
             //Don't allow user to create a chat with themselves
-            if (item.student_id == FirebaseAuth.getInstance().uid) return@setOnClickListener
-
-            item.student_id?.let {
-                FirebaseFirestore.getInstance()
-                    .collection("students").document(it).get().addOnSuccessListener {
-                        val user = it.toObject(Student::class.java)
-
-                        val intent = Intent(holder.containerView.context, ChatActivity::class.java)
-                        intent.putExtra(ChatListActivity.USER_KEY, user)
-                        holder.containerView.context.startActivity(intent)
-                    }
-            }
+            if(item.id == FirebaseAuth.getInstance().uid) return@setOnClickListener
+            val intent = Intent(holder.containerView.context, ChatActivity::class.java)
+            intent.putExtra(ChatListActivity.USER_KEY, item)
+            holder.containerView.context.startActivity(intent)
         }
 
         holder.containerView.apply {
-            item.student_id
-            item.student_id?.let {
-                FirebaseFirestore.getInstance()
-                    .collection("students").document(it).get().addOnSuccessListener {
-                        val user = it.toObject(Student::class.java)
-                        primaryTextView.text = "${user?.first_name} " +
-                                user?.last_name
-                        secondaryTextView.text = FirebaseAuth.getInstance().currentUser?.email
-                        var profilePic = user?.profile_picture_url
-                        if (user != null) {
-                            if (user.profile_picture_url == null || user.profile_picture_url!!.isEmpty()) {
-                                profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
-                            }
-                        }
-                        Picasso.get().load(profilePic).into(profilepic_imageview_user_row)
-                    }
+            primaryTextView.text = "${item.first_name} ${item.last_name}"
+            secondaryTextView.text = item.school
+            var profilePic = item.profile_picture_url
+            if(item.profile_picture_url == null || item.profile_picture_url!!.isEmpty()){
+                profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
             }
-
-            }
+            Glide.with(this).load(profilePic).into(profilepic_imageview_user_row)
         }
+    }
 
-    class ViewHolder(override val containerView: View) :
+
+
+    inner class ViewHolder(override val containerView: View) :
         RecyclerView.ViewHolder(containerView), LayoutContainer
 }
-
-
-

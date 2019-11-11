@@ -1,12 +1,15 @@
 package com.example.tutorme
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tutorme.databinding.ActivityEditSettingsBinding
 import com.example.tutorme.models.Student
@@ -15,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_edit_settings.*
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.*
 
 private const val TAG = "editsettings"
@@ -126,7 +131,8 @@ class EditSettingsActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == 0 && resultCode == Activity.RESULT_OK && data != null){
             selectedPhotoUri = data.data
-            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedPhotoUri)
+            var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedPhotoUri)
+            bitmap = selectedPhotoUri?.let { rotateImageIfNeeded(bitmap, it) }
             profilePicImgView.setImageBitmap(bitmap)
 
             select_photo_edit_settings.alpha = 0f
@@ -140,5 +146,26 @@ class EditSettingsActivity : AppCompatActivity() {
         }
         super.onResume()
 
+    }
+
+    private fun rotateImageIfNeeded(image: Bitmap, imageUri: Uri):Bitmap{
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return image
+        val input = contentResolver.openInputStream(imageUri)
+        val exifInterface = ExifInterface(input!!)
+
+        return when(exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)){
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(image, 90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(image, 180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(image, 270f)
+            else -> image
+        }
+    }
+
+    private fun rotateImage(image: Bitmap, rotationDegrees: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(rotationDegrees)
+        val rotatedImage = Bitmap.createBitmap(image, 0, 0, image.width, image.height, matrix, true)
+        image.recycle()
+        return rotatedImage
     }
 }

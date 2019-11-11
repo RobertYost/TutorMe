@@ -1,9 +1,16 @@
 package com.example.tutorme
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.media.ExifInterface
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.example.tutorme.databinding.ActivitySettingsBinding
 import com.example.tutorme.models.Student
 import com.example.tutorme.swipe_view.SwipeActivity
@@ -42,9 +49,9 @@ class SettingsActivity : AppCompatActivity() {
             binding.settingsSchool.text = oldSettings?.school
 
             if(oldSettings?.profile_picture_url == null || oldSettings?.profile_picture_url!!.isEmpty()){
-                Picasso.get().load(DEFUALT_PROFILE_PICTURE).into(profile_imageview_settings)
+                Glide.with(this).load(DEFUALT_PROFILE_PICTURE).into(profile_imageview_settings)
             }else{
-                Picasso.get().load(oldSettings?.profile_picture_url).into(profile_imageview_settings)
+                Glide.with(this).load(oldSettings?.profile_picture_url).into(profile_imageview_settings)
             }
 
         }
