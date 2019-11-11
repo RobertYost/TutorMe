@@ -83,6 +83,8 @@
     <string name="add_class_price_hint">10.00</string>
     <string name="add_class_price_label">Tutor rate (N/A if not tutoring)</string>
     <string name="add_class_duplicate">You have already added this class!</string>
+    <!-- delete_class_window.xml -->
+    <string name="delete_class_prompt">Click this box delete the class</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

@@ -1,5 +1,6 @@
 package com.example.tutorme.swipe_view
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,18 +10,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.example.tutorme.*
 import com.example.tutorme.databinding.ActivitySwipeBinding
+import com.example.tutorme.models.Class
 import com.example.tutorme.models.Student
+import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import android.annotation.SuppressLint
-import com.bumptech.glide.Glide
-import com.example.tutorme.*
-import com.example.tutorme.models.Class
-import com.firebase.ui.auth.AuthUI
-import com.squareup.picasso.Picasso
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import kotlinx.android.synthetic.main.nav_header.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 
@@ -65,6 +65,7 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivitySwipeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val toolbar = binding.toolbar
@@ -76,61 +77,77 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         navigationView = binding.navView
         navigationView.setNavigationItemSelectedListener(this)
 
-        FirebaseAuth.getInstance().uid?.let { it ->
-            FirebaseFirestore.getInstance()
-                .collection("students").document(it).get()
-                .addOnSuccessListener {
-                    val user = it.toObject(Student::class.java)
-                    navigationView.draw_full_name.text =
-                        "${user?.first_name} " +
-                                "${user?.last_name}"
-                    println("THING1 ${user?.first_name} ${user?.last_name}")
-                    navigationView.draw_email.text =
-                        FirebaseAuth.getInstance().currentUser?.email
-                    var profilePic = user?.profile_picture_url
-                    if (user?.profile_picture_url == null || user.profile_picture_url!!.isEmpty()) {
-                        profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
+        println("THING ${intent.action}")
+
+        if (intent.action == null) {
+            intent.action = "Already created"
+            FirebaseAuth.getInstance().uid?.let { it ->
+                FirebaseFirestore.getInstance()
+                    .collection("students").document(it).get()
+                    .addOnSuccessListener {
+                        val user = it.toObject(Student::class.java)
+                        navigationView.draw_full_name.text =
+                            "${user?.first_name} " +
+                                    "${user?.last_name}"
+                        println("THING1 ${user?.first_name} ${user?.last_name}")
+                        navigationView.draw_email.text =
+                            FirebaseAuth.getInstance().currentUser?.email
+                        var profilePic = user?.profile_picture_url
+                        if (user?.profile_picture_url == null || user.profile_picture_url!!.isEmpty()) {
+                            profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
+                        }
+                        //Picasso.get().load(profilePic).into(nav_profile_pic)
+                        Glide.with(this).load(profilePic).into(nav_profile_pic)
                     }
-                    //Picasso.get().load(profilePic).into(nav_profile_pic)
-                    Glide.with(this).load(profilePic).into(nav_profile_pic)
-                }
+            }
+
+            val toggle = ActionBarDrawerToggle(
+                this, drawer, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close
+            )
+            drawer.addDrawerListener(toggle)
+            toggle.syncState()
+
+            FirebaseAuth.getInstance().uid?.let { it ->
+                FirebaseFirestore.getInstance()
+                    .collection("students").document(it).get()
+                    .addOnSuccessListener { outerIt ->
+                        val user = outerIt.toObject(Student::class.java)
+
+                        // Making a query to discover which classes we will seek tutors for
+                        val usersClasses = FirebaseFirestore.getInstance()
+                            .collection("classes").whereEqualTo("student_id", user?.id)
+
+                        val builder = FirestoreRecyclerOptions.Builder<Class>()
+                            .setQuery(usersClasses, Class::class.java).setLifecycleOwner(this)
+
+                        //) { snapshot ->
+                        //                            snapshot.toObject(Class::class.java)!!.also {
+                        //                                it.student_id = snapshot.id
+                        //                                it.dpt_code = snapshot["dpt_code"].toString()
+                        //                                it.class_code = snapshot["class_code"].toString()
+                        //                            }
+                        //                        }
+
+                        val options = builder.build()
+                        val adapter = ClassListAdapter(options)
+                        binding.recViewClassList.adapter = adapter
+                    }
+            }
         }
+    }
 
-        val toggle = ActionBarDrawerToggle(
-            this, drawer, toolbar,
-            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawer.addDrawerListener(toggle)
-        toggle.syncState()
+    override fun onResume() {
 
-        // TODO: Change this query to only match with the tutors of the student's classes
-        FirebaseAuth.getInstance().uid?.let { it ->
-            FirebaseFirestore.getInstance()
-                .collection("students").document(it).get()
-                .addOnSuccessListener { outerIt ->
-                    val user = outerIt.toObject(Student::class.java)
-
-                    // Making a query to discover which classes we will seek tutors for
-                    val usersClasses = FirebaseFirestore.getInstance()
-                        .collection("classes").whereEqualTo("student_id", user?.id)
-
-                    val builder = FirestoreRecyclerOptions.Builder<Class>()
-                        .setQuery(usersClasses, Class::class.java).setLifecycleOwner(this)
-
-                    //) { snapshot ->
-                    //                            snapshot.toObject(Class::class.java)!!.also {
-                    //                                it.student_id = snapshot.id
-                    //                                it.dpt_code = snapshot["dpt_code"].toString()
-                    //                                it.class_code = snapshot["class_code"].toString()
-                    //                            }
-                    //                        }
-
-                    val options = builder.build()
-                    val adapter = ClassListAdapter(options)
-                    binding.recViewClassList.adapter = adapter
-                }
+        val action = intent.action
+        // Prevent endless loop by adding a unique action, don't restart if action is present
+        if (action == null || action != "Already created") {
+            Log.v("DEBUG", "Force restart")
+            val intent = Intent(this, SwipeActivity::class.java)
+            startActivity(intent)
+            finish()
         }
-
+        super.onResume()
     }
 
     override fun onBackPressed() {

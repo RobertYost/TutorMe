@@ -59,7 +59,7 @@ class UserListAdapter(options: FirestoreRecyclerOptions<Class>) :
                         val user = it.toObject(Student::class.java)
                         primaryTextView.text = "${user?.first_name} " +
                                 user?.last_name
-                        secondaryTextView.text = FirebaseAuth.getInstance().currentUser?.email
+                        secondaryTextView.text = "Tutor rate: $${item.tutor_price}"
                         var profilePic = user?.profile_picture_url
                         if (user != null) {
                             if (user.profile_picture_url == null || user.profile_picture_url!!.isEmpty()) {

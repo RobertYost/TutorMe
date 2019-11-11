@@ -16,6 +16,9 @@ import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import com.bumptech.glide.Glide
 import com.example.tutorme.*
 import com.example.tutorme.databinding.ActivityUserListBinding
@@ -24,6 +27,7 @@ import com.firebase.ui.auth.AuthUI
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.nav_header.*
 import kotlinx.android.synthetic.main.nav_header.view.*
+import kotlin.system.exitProcess
 
 
 private const val TAG = "UserListActivity"
@@ -85,14 +89,29 @@ class UserListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 .whereEqualTo("dpt_code", WHICH_CLASS.dpt_code)
                 .whereEqualTo("class_code", WHICH_CLASS.class_code)
                 .whereEqualTo("student_id", WHICH_CLASS.student_id)
-                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                .addSnapshotListener { querySnapshot, _ ->
                     if (querySnapshot != null) {
                         for (doc in querySnapshot.documents){
                             docToDelete = doc.id
                         }
                         FirebaseFirestore.getInstance().collection("classes")
                             .document(docToDelete).delete().addOnSuccessListener {
-                                finish()
+                                val mStartActivity = Intent(this, MainActivity::class.java)
+                                val mPendingIntentId = 123456
+                                val mPendingIntent = PendingIntent.getActivity(
+                                    this,
+                                    mPendingIntentId,
+                                    mStartActivity,
+                                    PendingIntent.FLAG_CANCEL_CURRENT
+                                )
+                                val mgr =
+                                    this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                                mgr.set(
+                                    AlarmManager.RTC,
+                                    System.currentTimeMillis() + 100,
+                                    mPendingIntent
+                                )
+                                exitProcess(0)
                             }
                     }
                 }
@@ -129,15 +148,15 @@ class UserListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                         ).whereEqualTo("dpt_code", WHICH_CLASS.dpt_code)
                         .whereEqualTo("class_code", WHICH_CLASS.class_code)
                         .whereEqualTo("is_tutor", true)
-                    println("THING1 $WHICH_CLASS")
+//                    println("THING1 $WHICH_CLASS")
 
-                    usersClasses.addSnapshotListener { querySnapshot, _ ->
-                        if (querySnapshot != null) {
-                            for (doc in querySnapshot) {
-                                println("THING2 ${doc.data}")
-                            }
-                        }
-                    }
+//                    usersClasses.addSnapshotListener { querySnapshot, _ ->
+//                        if (querySnapshot != null) {
+//                            for (doc in querySnapshot) {
+//                                println("THING2 ${doc.data}")
+//                            }
+//                        }
+//                    }
 
                     val builder = FirestoreRecyclerOptions.Builder<Class>()
                         .setQuery(usersClasses, Class::class.java).setLifecycleOwner(this)
