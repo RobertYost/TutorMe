@@ -1,7 +1,6 @@
 package com.example.tutorme.swipe_view
 
 import android.content.Intent
-import android.drm.DrmStore
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -10,17 +9,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.tutorme.AddClassActivity
-import com.example.tutorme.ChatListActivity
-import com.example.tutorme.R
-import com.example.tutorme.SettingsActivity
 import com.example.tutorme.databinding.ActivitySwipeBinding
 import com.example.tutorme.models.Student
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.activity_swipe.*
+import android.annotation.SuppressLint
+import com.example.tutorme.*
+import com.firebase.ui.auth.AuthUI
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.nav_header.*
+import kotlinx.android.synthetic.main.nav_header.view.*
+import kotlinx.android.synthetic.main.user_row.view.*
+
 
 private const val TAG = "SwipeActivity"
 
@@ -41,6 +43,16 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 val intent = Intent(this, ChatListActivity::class.java)
                 startActivity(intent)
             }
+            R.id.nav_sign_out -> {
+                val intent = Intent(this, MainActivity::class.java)
+                    AuthUI.getInstance()
+                        .signOut(this)
+                        .addOnCompleteListener {
+                            // user is now signed out
+                            startActivity(intent)
+                            finish()
+                        }
+            }
             else -> Log.d("DEBUG", "Odd interaction with the navigation drawer...")
         }
         return true
@@ -50,18 +62,37 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     private lateinit var drawer: DrawerLayout
     private lateinit var navigationView: NavigationView
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySwipeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val tbar = binding.toolbar
-        setSupportActionBar(tbar)
+        val toolbar = binding.toolbar
+        setSupportActionBar(toolbar)
         binding.recViewUserList.layoutManager = LinearLayoutManager(this)
 
         // Handling setup for drawer and navigation view
         drawer = binding.drawerLayout
         navigationView = binding.navView
         navigationView.setNavigationItemSelectedListener(this)
+
+        FirebaseAuth.getInstance().uid?.let { it ->
+            FirebaseFirestore.getInstance()
+                .collection("students").document(it).get()
+                .addOnSuccessListener {
+                    val user = it.toObject(Student::class.java)
+                    navigationView.draw_full_name.text =
+                        "${user?.first_name} " +
+                                "${user?.last_name}"
+                    navigationView.draw_email.text =
+                        FirebaseAuth.getInstance().currentUser?.email
+                    var profilePic = user?.profile_picture_url
+                    if(user?.profile_picture_url == null || user.profile_picture_url!!.isEmpty()){
+                        profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
+                    }
+                    Picasso.get().load(profilePic).into(nav_profile_pic)
+                }
+        }
 
         val toggle = ActionBarDrawerToggle(this, drawer, toolbar,
             R.string.navigation_drawer_open, R.string.navigation_drawer_close)

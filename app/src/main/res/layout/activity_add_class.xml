@@ -109,7 +109,15 @@
                     android:enabled="false"
                     android:ems="10"
                     android:inputType="numberDecimal"
-                    android:text="@string/add_class_price_hint" />
+                    android:text="@string/add_class_price_hint"
+                    tools:ignore="Autofill,LabelFor" />
+
+                <TextView
+                    android:id="@+id/add_class_error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@android:color/holo_red_dark" />
             </RadioGroup>
 
             <LinearLayout

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -16,9 +15,6 @@ import com.example.tutorme.databinding.ActivityAddSchoolBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.firestore.FirebaseFirestore
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import com.google.firebase.firestore.GeoPoint
 
 
@@ -41,13 +37,13 @@ class AddSchoolActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title)
             .setMessage(message)
-            .setPositiveButton(android.R.string.ok,
-                DialogInterface.OnClickListener { dialog, id ->
-                    requestPermission(
-                        permission,
-                        permissionRequestCode
-                    )
-                })
+            .setPositiveButton(android.R.string.ok
+            ) { _, _ ->
+                requestPermission(
+                    permission,
+                    permissionRequestCode
+                )
+            }
         builder.create().show()
     }
 
@@ -136,15 +132,16 @@ class AddSchoolActivity : AppCompatActivity() {
                     "location" to geo
                 )
 
-                var db = FirebaseFirestore.getInstance()
+                val db = FirebaseFirestore.getInstance()
 
                 // Adds or updates the document to the students collection based on the login email used
                 db.collection("universities").document(binding.addSchoolName.text.toString())
                     .set(settings)
 
                 // Redirects back to the school list page after saving
-                val intent = Intent(this, SchoolListActivity::class.java)
-                startActivity(intent)
+                finish()
+//                val intent = Intent(this, SchoolListActivity::class.java)
+//                startActivity(intent)
 
             }
         }

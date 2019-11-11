@@ -2,10 +2,6 @@ package com.example.tutorme
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.graphics.drawable.BitmapDrawable
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -14,10 +10,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tutorme.databinding.ActivityEditSettingsBinding
 import com.example.tutorme.models.Student
+import com.example.tutorme.swipe_view.SwipeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.tutorme.R
-import com.example.tutorme.swipe_view.SwipeActivity
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_edit_settings.*
 import java.util.*
@@ -94,6 +89,8 @@ class EditSettingsActivity : AppCompatActivity() {
             Toast.makeText(this, "Please make sure to select your school and " +
                     "enter your name!", Toast.LENGTH_SHORT).show()
         } else {
+            Toast.makeText(this, "Settings saved.", Toast.LENGTH_LONG).show()
+
             // Prepares the settings based on the fields
             val settings = hashMapOf(
                 "id" to FirebaseAuth.getInstance().currentUser!!.uid,
