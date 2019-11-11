@@ -22,11 +22,14 @@
     <string name="facebook_application_id" translatable="false">253050605628339</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb253050605628339</string>
 
-    <!-- SwipeActivity -->
+    <!-- SwipeActivity/UserListActivity -->
     <string name="user_avatar_description">A user\'s avatar</string>
     <string name="settingsBtn">Settings</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="class_list_tutor">Tutor</string>
+    <string name="class_list_student">Student</string>
+    <string name="user_list_delete_label">Delete Class</string>
 
     <!-- SettingsActivity -->
     <string name="profile_picture_url">Profile Picture URL</string>

@@ -12,10 +12,10 @@ import java.util.*
 data class Class(
     @JvmField @PropertyName(STUDENT_ID) var student_id: String? = null,
     @JvmField @PropertyName(IS_TUTOR) var is_tutor: Boolean? = null,
-    @JvmField @PropertyName(TUTOR_PRICE) var tutor_price: Double? = null,
+    @JvmField @PropertyName(TUTOR_PRICE) var tutor_price: String? = null,
     @JvmField @PropertyName(SCHOOL) var school: String? = null,
     @JvmField @PropertyName(DPT_CODE) var dpt_code: String? = null,
-    @JvmField @PropertyName(CLASS_CODE) var class_code: Number? = null
+    @JvmField @PropertyName(CLASS_CODE) var class_code: String? = null
 ) :Parcelable{
     companion object {
         const val STUDENT_ID = "student_id"

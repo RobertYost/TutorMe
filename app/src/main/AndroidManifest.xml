@@ -30,6 +30,9 @@
         <activity
             android:name=".swipe_view.SwipeActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".swipe_view.UserListActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ChatListActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY"
                 android:value=".swipe_view.SwipeActivity"/>

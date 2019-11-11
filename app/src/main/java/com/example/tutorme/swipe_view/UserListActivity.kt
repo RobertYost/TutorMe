@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.annotation.SuppressLint
 import com.example.tutorme.*
+import com.example.tutorme.databinding.ActivityUserListBinding
 import com.example.tutorme.models.Class
 import com.firebase.ui.auth.AuthUI
 import com.squareup.picasso.Picasso
@@ -24,9 +25,9 @@ import kotlinx.android.synthetic.main.nav_header.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 
 
-private const val TAG = "SwipeActivity"
+private const val TAG = "UserListActivity"
 
-class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class UserListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     // Handles the item selection in the drawer
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -57,18 +58,45 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         return true
     }
 
-    private lateinit var binding: ActivitySwipeBinding
+    private lateinit var binding: ActivityUserListBinding
     private lateinit var drawer: DrawerLayout
     private lateinit var navigationView: NavigationView
+    private lateinit var WHICH_CLASS: Class
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySwipeBinding.inflate(layoutInflater)
+        binding = ActivityUserListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val toolbar = binding.toolbar
         setSupportActionBar(toolbar)
-        binding.recViewClassList.layoutManager = LinearLayoutManager(this)
+        binding.recViewUserList.layoutManager = LinearLayoutManager(this)
+
+        WHICH_CLASS = intent.getParcelableExtra("WHICH_CLASS")!!
+
+        var docToDelete = "none"
+
+        //TODO: fix bug with deleting class
+
+        binding.userListDeleteClassBtn.setOnClickListener {
+            FirebaseFirestore.getInstance().collection("classes")
+                .whereEqualTo("school", WHICH_CLASS.school)
+                .whereEqualTo("dpt_code", WHICH_CLASS.dpt_code)
+                .whereEqualTo("class_code", WHICH_CLASS.class_code)
+                .whereEqualTo("student_id", WHICH_CLASS.student_id)
+                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    if (querySnapshot != null) {
+                        for (doc in querySnapshot.documents){
+                            docToDelete = doc.id
+                        }
+                        FirebaseFirestore.getInstance().collection("classes")
+                            .document(docToDelete).delete().addOnSuccessListener {
+                                finish()
+                            }
+                    }
+                }
+
+        }
 
         // Handling setup for drawer and navigation view
         drawer = binding.drawerLayout
@@ -83,7 +111,7 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     navigationView.draw_full_name.text =
                         "${user?.first_name} " +
                                 "${user?.last_name}"
-                    println("THING1 ${user?.first_name} ${user?.last_name}")
+
                     navigationView.draw_email.text =
                         FirebaseAuth.getInstance().currentUser?.email
                     var profilePic = user?.profile_picture_url
@@ -91,6 +119,31 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                         profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
                     }
                     Picasso.get().load(profilePic).into(nav_profile_pic)
+
+                    // Making a query to discover which classes we will seek tutors for
+                    val usersClasses = FirebaseFirestore.getInstance()
+                        .collection("classes").whereEqualTo(
+                            "school",
+                            user?.school
+                        ).whereEqualTo("dpt_code", WHICH_CLASS.dpt_code)
+                        .whereEqualTo("class_code", WHICH_CLASS.class_code)
+                        .whereEqualTo("is_tutor", true)
+                    println("THING1 $WHICH_CLASS")
+
+                    usersClasses.addSnapshotListener { querySnapshot, _ ->
+                        if (querySnapshot != null) {
+                            for (doc in querySnapshot) {
+                                println("THING2 ${doc.data}")
+                            }
+                        }
+                    }
+
+                    val builder = FirestoreRecyclerOptions.Builder<Class>()
+                        .setQuery(usersClasses, Class::class.java).setLifecycleOwner(this)
+
+                    val options = builder.build()
+                    val adapter = UserListAdapter(options)
+                    binding.recViewUserList.adapter = adapter
                 }
         }
 
@@ -100,34 +153,6 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         )
         drawer.addDrawerListener(toggle)
         toggle.syncState()
-
-        // TODO: Change this query to only match with the tutors of the student's classes
-        FirebaseAuth.getInstance().uid?.let { it ->
-            FirebaseFirestore.getInstance()
-                .collection("students").document(it).get()
-                .addOnSuccessListener { outerIt ->
-                    val user = outerIt.toObject(Student::class.java)
-
-                    // Making a query to discover which classes we will seek tutors for
-                    val usersClasses = FirebaseFirestore.getInstance()
-                        .collection("classes").whereEqualTo("student_id", user?.id)
-
-                    val builder = FirestoreRecyclerOptions.Builder<Class>()
-                        .setQuery(usersClasses, Class::class.java).setLifecycleOwner(this)
-
-                    //) { snapshot ->
-                    //                            snapshot.toObject(Class::class.java)!!.also {
-                    //                                it.student_id = snapshot.id
-                    //                                it.dpt_code = snapshot["dpt_code"].toString()
-                    //                                it.class_code = snapshot["class_code"].toString()
-                    //                            }
-                    //                        }
-
-                    val options = builder.build()
-                    val adapter = ClassListAdapter(options)
-                    binding.recViewClassList.adapter = adapter
-                }
-        }
 
     }
 

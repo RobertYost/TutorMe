@@ -36,9 +36,6 @@ class AddClassActivity : AppCompatActivity() {
         }
 
         binding.addClassAddButton.setOnClickListener {
-//TODO: things to fix in here
-
-
             // If the school hasn't been selected or info is missing, refuse the save
             if(binding.addClassMajorPlaceholder.text.isEmpty() || binding.addClassCourseNumber.text.isEmpty() || binding.addClassRadioGroup.checkedRadioButtonId == -1){
                 Toast.makeText(this, "Please make sure to fill out all the fields!",

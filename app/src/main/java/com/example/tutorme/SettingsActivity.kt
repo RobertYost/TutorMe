@@ -35,7 +35,7 @@ class SettingsActivity : AppCompatActivity() {
         student.get().addOnSuccessListener { documentSnapshot ->
             oldSettings = documentSnapshot.toObject(Student::class.java)
 
-            binding.settingsEmail?.text = FirebaseAuth.getInstance().currentUser?.email
+            binding.settingsEmail.text = FirebaseAuth.getInstance().currentUser?.email
             binding.settingsFirstName.text = oldSettings?.first_name
             binding.settingsLastName.text = oldSettings?.last_name
             binding.settingsProfilePictureUrl.text = oldSettings?.profile_picture_url
