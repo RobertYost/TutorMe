@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import com.example.tutorme.models.ChatMessage
 import com.example.tutorme.models.Student
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -13,6 +14,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.from_chat_row.view.*
 import kotlinx.android.synthetic.main.to_chat_row.view.*
@@ -20,6 +24,8 @@ import kotlinx.android.synthetic.main.to_chat_row.view.*
 private const val TAG = "chatAct"
 
 class ChatActivity : AppCompatActivity() {
+
+    private var internetDisposable: Disposable? = null
 
     val adapter = GroupAdapter<GroupieViewHolder>()
     var toStudent: Student? = null
@@ -44,6 +50,17 @@ class ChatActivity : AppCompatActivity() {
                 recycleview_chat.postDelayed({ recycleview_chat.smoothScrollToPosition(bottom) }, 100)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        internetDisposable = ReactiveNetwork.observeInternetConnectivity()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { isConnectedToInternet ->
+
+            }
     }
 
     private fun listenForMessages(){
