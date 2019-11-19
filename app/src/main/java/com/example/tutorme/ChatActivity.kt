@@ -59,8 +59,13 @@ class ChatActivity : AppCompatActivity() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { isConnectedToInternet ->
-
+                edittext_chat.isEnabled = isConnectedToInternet
+                send_button_chat.isEnabled = isConnectedToInternet
             }
+    }
+
+    override fun onPause() {
+        super.onPause()
     }
 
     private fun listenForMessages(){
