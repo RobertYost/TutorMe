@@ -17,9 +17,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.tutorme.databinding.ActivityEditSettingsBinding
 import com.example.tutorme.models.Student
 import com.example.tutorme.swipe_view.SwipeActivity
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_edit_settings.*
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -32,7 +36,8 @@ class EditSettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditSettingsBinding
     private lateinit var theSchool: String
     private lateinit var db: FirebaseFirestore
-    var selectedPhotoUri: Uri? = null
+    private var internetDisposable: Disposable? = null
+    private var selectedPhotoUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -80,6 +85,7 @@ class EditSettingsActivity : AppCompatActivity() {
 
         binding.editSettingsSaveButton.setOnClickListener {
             uploadImageToFirebaseStorage()
+            saveUserToFireStore(selectedPhotoUri.toString())
             //TODO: Update vs. Create (Currently works fine as is, maybe change for NFR Checkpoint)
 //            if(!userExists){
 //                Log.d("DEBUG", "Should have created user")
@@ -88,7 +94,17 @@ class EditSettingsActivity : AppCompatActivity() {
 //                db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid).set(settings, SetOptions.merge())
 //            }
         }
+    }
 
+    override fun onPause() {
+        super.onPause()
+        safelyDispose(internetDisposable)
+    }
+
+    private fun safelyDispose(disposable: Disposable?) {
+        if (disposable != null && !disposable.isDisposed) {
+            disposable.dispose()
+        }
     }
 
     private fun saveUserToFireStore(profilePictureUrl: String){
@@ -148,6 +164,18 @@ class EditSettingsActivity : AppCompatActivity() {
             binding.editSettingsSchool.text = theSchool
         }
         super.onResume()
+
+
+        internetDisposable = ReactiveNetwork.observeNetworkConnectivity(applicationContext)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { connectivity ->
+                binding.editSchoolBtn.isEnabled = connectivity.available()
+                binding.editSettingsSchool.isEnabled = connectivity.available()
+                binding.editSettingsFirstName.isEnabled = connectivity.available()
+                binding.editSettingsLastName.isEnabled = connectivity.available()
+                binding.editSettingsEmail.isEnabled = connectivity.available()
+            }
 
     }
 

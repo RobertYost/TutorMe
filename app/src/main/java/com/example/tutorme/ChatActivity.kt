@@ -66,6 +66,13 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        safelyDispose(internetDisposable)
+    }
+
+    private fun safelyDispose(disposable: Disposable?) {
+        if (disposable != null && !disposable.isDisposed) {
+            disposable.dispose()
+        }
     }
 
     private fun listenForMessages(){
