@@ -20,6 +20,12 @@ class AddClassActivity : AppCompatActivity() {
     // Using view-binding from arch-components (requires Android Studio 3.6 Canary 11+)
     private lateinit var binding: ActivityAddClassBinding
 
+    fun invalidClass(mjr: String, crsNum: String, radChecked: Number): Boolean {
+        return (mjr.isEmpty()
+                || crsNum.isEmpty()
+                || radChecked == -1)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddClassBinding.inflate(layoutInflater)
@@ -36,12 +42,15 @@ class AddClassActivity : AppCompatActivity() {
         }
 
         binding.addClassAddButton.setOnClickListener {
+
+            val mjr = binding.addClassMajorPlaceholder.text.toString()
+            val crsNum = binding.addClassCourseNumber.text.toString()
+            val radChecked = binding.addClassRadioGroup.checkedRadioButtonId
             // If the school hasn't been selected or info is missing, refuse the save
-            if(binding.addClassMajorPlaceholder.text.isEmpty() || binding.addClassCourseNumber.text.isEmpty() || binding.addClassRadioGroup.checkedRadioButtonId == -1){
+            if(invalidClass(mjr, crsNum, radChecked)){
                 Toast.makeText(this, "Please make sure to fill out all the fields!",
                     Toast.LENGTH_SHORT).show()
             } else {
-
                 val doc = db.collection("students").document(FirebaseAuth
                     .getInstance().currentUser!!.uid)
                 var userSchool: String

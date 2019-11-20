@@ -93,7 +93,7 @@ class SchoolListActivity : AppCompatActivity() {
         }
     }
 
-    private fun latLonInKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+    fun latLonInKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val R = 6371 // Radius of the earth in km
         val dLat = deg2rad(lat2 - lat1)
         val dLon = deg2rad(lon2 - lon1)
