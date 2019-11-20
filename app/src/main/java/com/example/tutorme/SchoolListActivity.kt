@@ -2,9 +2,11 @@ package com.example.tutorme
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -23,6 +25,18 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+import android.text.TextUtils
+import android.provider.Settings.Secure
+import android.provider.Settings.Secure.LOCATION_MODE_OFF
+import android.provider.Settings.SettingNotFoundException
+import android.provider.Settings.Secure.LOCATION_MODE
+import android.os.Build
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.provider.Settings
+import android.util.Log
+
 
 private const val TAG = "SchoolListActivity"
 
@@ -174,6 +188,21 @@ class SchoolListActivity : AppCompatActivity() {
 
     }
 
+    private fun isLocationEnabled(context: Context): Boolean {
+        val locationMode: Int
+
+        try {
+            locationMode =
+                Secure.getInt(context.contentResolver, "location_mode")
+
+        } catch (e: SettingNotFoundException) {
+            e.printStackTrace()
+            return false
+        }
+
+        return locationMode != LOCATION_MODE_OFF
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySchoolListBinding.inflate(layoutInflater)
@@ -183,40 +212,47 @@ class SchoolListActivity : AppCompatActivity() {
         val query = FirebaseFirestore.getInstance().collection("universities")
         located = "false"
 
-        if (checkSelfPermission(
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Check Permissions Now
-            val REQUEST_LOCATION = 2
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this,
+        if (isLocationEnabled(this)) {
+            if (checkSelfPermission(
                     Manifest.permission.ACCESS_COARSE_LOCATION
-                )
+                ) != PackageManager.PERMISSION_GRANTED
             ) {
-                showExplanation(
-                    "Permission needed",
-                    "Location access needed to approximate university's location",
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    REQUEST_LOCATION
-                )
+                // Check Permissions Now
+                val REQUEST_LOCATION = 2
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                ) {
+                    showExplanation(
+                        "Permission needed",
+                        "Location access needed to approximate university's location",
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        REQUEST_LOCATION
+                    )
+                } else {
+                    requestPermissions(
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        REQUEST_LOCATION
+                    )
+                }
             } else {
-                requestPermissions(
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    REQUEST_LOCATION
-                )
+                // permission has been granted, continue as usual
+                locationAcquiredAction()
             }
-        } else {
-            // permission has been granted, continue as usual
-            locationAcquiredAction()
+        } else {    // Location not enabled. Disable add-school button
+            Toast.makeText(this, "Please enable your location to see " +
+                    "the closest school", Toast.LENGTH_LONG).show()
+
         }
 
         binding.selectSuggestedBtn.setOnClickListener {
             if (suggest == 50000.0) {
                 Toast.makeText(
                     this, "No universities to suggest for you." +
-                            " Please add yours", Toast.LENGTH_LONG
+                            " Please add yours or ensure " +
+                            "your location is enabled", Toast.LENGTH_LONG
                 ).show()
                 locationAcquiredAction()
             } else {
@@ -227,8 +263,13 @@ class SchoolListActivity : AppCompatActivity() {
         }
 
         binding.addNewSchool.setOnClickListener {
-            val intent = Intent(this, AddSchoolActivity::class.java)
-            startActivity(intent)
+            if (isLocationEnabled(this)) {
+                val intent = Intent(this, AddSchoolActivity::class.java)
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Please enable location to " +
+                        "add a school", Toast.LENGTH_LONG).show()
+            }
         }
 
         val builder = FirestoreRecyclerOptions.Builder<University>()

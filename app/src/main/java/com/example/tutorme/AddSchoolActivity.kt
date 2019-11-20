@@ -2,11 +2,13 @@ package com.example.tutorme
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -54,6 +56,20 @@ class AddSchoolActivity : AppCompatActivity() {
         )
     }
 
+    private fun isLocationEnabled(context: Context): Boolean {
+        val locationMode: Int
+        try {
+            locationMode =
+                Settings.Secure.getInt(context.contentResolver, "location_mode")
+
+        } catch (e: Settings.SettingNotFoundException) {
+            e.printStackTrace()
+            return false
+        }
+
+        return locationMode != Settings.Secure.LOCATION_MODE_OFF
+    }
+
     @SuppressLint("SetTextI18n")
     private fun adjustLocation() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -93,23 +109,38 @@ class AddSchoolActivity : AppCompatActivity() {
 
         located = "false"
 
-        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Check Permissions Now
-            val REQUEST_LOCATION = 2
+        if (isLocationEnabled(this)) {
+            if (checkSelfPermission(
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // Check Permissions Now
+                val REQUEST_LOCATION = 2
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                showExplanation("Permission needed", "Location access needed to approximate university's location", Manifest.permission.ACCESS_COARSE_LOCATION, REQUEST_LOCATION)
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                ) {
+                    showExplanation(
+                        "Permission needed",
+                        "Location access needed to approximate university's location",
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        REQUEST_LOCATION
+                    )
+                } else {
+                    requestPermissions(
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        REQUEST_LOCATION
+                    )
+                }
             } else {
-                requestPermissions(
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    REQUEST_LOCATION
-                )
+                // permission has been granted, continue as usual
+                adjustLocation()
             }
         } else {
-            // permission has been granted, continue as usual
-            adjustLocation()
+            Toast.makeText(this, "Please ensure location services " +
+                    "are enabled", Toast.LENGTH_LONG).show()
         }
 
         binding.addSchoolAddButton.setOnClickListener {
@@ -118,7 +149,7 @@ class AddSchoolActivity : AppCompatActivity() {
 //                    "Thing2: ${theSchool}")
 
             // If the school hasn't been selected or info is missing, refuse the save
-            if (located == "false" || binding.addSchoolName.length() == 0) {
+            if (located == "false" || binding.addSchoolName.length() == 0 || !isLocationEnabled(this)) {
                 Toast.makeText(
                     this, "Please make sure to enter your " +
                             "school's name and enable location" +
