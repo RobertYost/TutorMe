@@ -3,6 +3,7 @@ package com.example.tutorme
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import com.example.tutorme.models.ChatMessage
 import com.example.tutorme.models.Student
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
@@ -55,12 +56,12 @@ class ChatActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        internetDisposable = ReactiveNetwork.observeInternetConnectivity()
+        internetDisposable = ReactiveNetwork.observeNetworkConnectivity(this)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { isConnectedToInternet ->
-                edittext_chat.isEnabled = isConnectedToInternet
-                send_button_chat.isEnabled = isConnectedToInternet
+                edittext_chat.isEnabled = isConnectedToInternet.available()
+                send_button_chat.isEnabled = isConnectedToInternet.available()
             }
     }
 
