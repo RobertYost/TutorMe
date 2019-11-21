@@ -28,6 +28,12 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (savedInstanceState == null) {
+            val extras = this.intent.extras
+            curUser = extras!!.get("cur_user") as Student
+            Log.d("DEBUG", curUser.toString())
+        }
+
         val settingsViewModel = ViewModelProviders.of(this).get(SettingsViewModel::class.java)
         val user = settingsViewModel.currentUser
         if (user == null) {
@@ -60,6 +66,7 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.settingsEditButton.setOnClickListener {
             val intent = Intent(this, EditSettingsActivity::class.java)
+            intent.putExtra("cur_user", curUser)
             startActivity(intent)
         }
 
