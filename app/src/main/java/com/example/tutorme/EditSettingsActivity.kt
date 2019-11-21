@@ -12,6 +12,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
 import com.example.tutorme.databinding.ActivityEditSettingsBinding
 import com.example.tutorme.models.Student
 import com.example.tutorme.swipe_view.SwipeActivity
@@ -25,47 +26,45 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_edit_settings.*
 import java.util.*
 
-private const val TAG = "editsettings"
+private const val TAG = "editsettingslog"
 class EditSettingsActivity : AppCompatActivity() {
 
     // Using view-binding from arch-components (requires Android Studio 3.6 Canary 11+)
     private lateinit var binding: ActivityEditSettingsBinding
-    private lateinit var theSchool: String
-    private lateinit var db: FirebaseFirestore
+    //private lateinit var theSchool: String
     private var internetDisposable: Disposable? = null
-    private var selectedPhotoUri: Uri? = null
+
+    private val editSettingsViewModel: EditSettingsViewModel by lazy {
+        ViewModelProviders.of(this).get(EditSettingsViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        Log.d("EditSettingsActivity", "Created EditSettingsActivity")
+        Log.d(TAG, "Created EditSettingsActivity")
         super.onCreate(savedInstanceState)
         binding = ActivityEditSettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        db = FirebaseFirestore.getInstance()
-        theSchool = "default"
+        //theSchool = "default"
 
-        val thisIntent = intent
-        if (thisIntent.getStringExtra("school") != null) {
-            theSchool = thisIntent.getStringExtra("school")!!
-            binding.editSettingsSchool.text = theSchool
+//        val thisIntent = intent
+//        if (thisIntent.getStringExtra("school") != null) {
+//            editSettingsViewModel.school = thisIntent.getStringExtra("school")!!
+//            binding.editSettingsSchool.text = editSettingsViewModel.school
+//        }
+        setSchool()
+        val user = Student(editSettingsViewModel.id,
+            editSettingsViewModel.firstName,
+            editSettingsViewModel.lastName,
+            editSettingsViewModel.email,
+            null,
+            editSettingsViewModel.school)
+        if(user.first_name == null || user.last_name == null || user.email == null){
+            getUser()
+        } else {
+            setUserData(user)
         }
 
-        val student =
-            db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
-        var oldSettings: Student?
-//        var userExists = false
-        student.get().addOnSuccessListener {
-            oldSettings = it.toObject(Student::class.java)
-            binding.editSettingsEmail.setText(FirebaseAuth.getInstance().currentUser?.email)
-            binding.editSettingsFirstName.setText(oldSettings?.first_name)
-            binding.editSettingsLastName.setText(oldSettings?.last_name)
-            if(oldSettings != null){
-                theSchool = oldSettings?.school.toString()
-                binding.editSettingsSchool.text = oldSettings?.school
-                binding.editSchoolBtn.isEnabled = false
-            }
-        }
 
         binding.selectPhotoEditSettings.setOnClickListener {
             Log.d(TAG, "try to select photo")
@@ -78,18 +77,43 @@ class EditSettingsActivity : AppCompatActivity() {
                 val intent = Intent(this, SchoolListActivity::class.java)
                 startActivity(intent)
         }
-
         binding.editSettingsSaveButton.setOnClickListener {
             uploadImageToFirebaseStorage()
-            saveUserToFireStore(selectedPhotoUri.toString())
-            //TODO: Update vs. Create (Currently works fine as is, maybe change for NFR Checkpoint)
-//            if(!userExists){
-//                Log.d("DEBUG", "Should have created user")
-//                db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid).set(settings).addOnSuccessListener { Log.d("Document", "Successfully created user") }
-//            } else {
-//                db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid).set(settings, SetOptions.merge())
-//            }
+            saveUserToFireStore(editSettingsViewModel.selectedPhotoUri.toString())
         }
+    }
+
+    private fun getUser() {
+        editSettingsViewModel.id = FirebaseAuth.getInstance().currentUser!!.uid
+        val student =
+            FirebaseFirestore.getInstance().collection("students")
+                .document(editSettingsViewModel.id!!)
+        var oldSettings: Student?
+
+        student.get().addOnSuccessListener {
+            oldSettings = it.toObject(Student::class.java)
+            val email = FirebaseAuth.getInstance().currentUser?.email
+            binding.editSettingsEmail.setText(email)
+            editSettingsViewModel.email = email
+            binding.editSettingsFirstName.setText(oldSettings?.first_name)
+            editSettingsViewModel.firstName = oldSettings?.first_name
+            binding.editSettingsLastName.setText(oldSettings?.last_name)
+            editSettingsViewModel.lastName = oldSettings?.last_name
+            if (oldSettings != null) {
+                editSettingsViewModel.school = oldSettings?.school.toString()
+                binding.editSettingsSchool.text = oldSettings?.school
+                binding.editSchoolBtn.isEnabled = false
+            }
+        }
+    }
+
+    private fun setUserData(user: Student){
+        binding.editSettingsEmail.setText(user.email)
+        binding.editSettingsFirstName.setText(user.first_name)
+        binding.editSettingsLastName.setText(user.last_name)
+        binding.editSettingsSchool.text = user.school
+        setPhoto()
+        binding.editSchoolBtn.isEnabled = false
     }
 
     override fun onPause() {
@@ -99,7 +123,7 @@ class EditSettingsActivity : AppCompatActivity() {
 
     private fun saveUserToFireStore(profilePictureUrl: String){
         // If the school hasn't been selected or info is missing, refuse the save
-        if(theSchool == "default" || binding.editSettingsFirstName.length() == 0){
+        if(editSettingsViewModel.school == "default" || binding.editSettingsFirstName.length() == 0){
             Toast.makeText(this, "Please make sure to select your school and " +
                     "enter your name!", Toast.LENGTH_SHORT).show()
         } else {
@@ -115,8 +139,8 @@ class EditSettingsActivity : AppCompatActivity() {
             )
 
             // Adds or updates the document to the students collection based on the login email used
-            db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
-                .set(settings)
+            FirebaseFirestore.getInstance().collection("students")
+                .document(FirebaseAuth.getInstance().currentUser!!.uid).set(settings)
 
             val curUser = Student (settings["id"], settings["first_name"], settings["last_name"],
                 FirebaseAuth.getInstance().currentUser!!.email, settings["profile_picture_url"],
@@ -130,34 +154,37 @@ class EditSettingsActivity : AppCompatActivity() {
     }
 
     private fun uploadImageToFirebaseStorage(){
-        if(selectedPhotoUri == null) return
+        if(editSettingsViewModel.selectedPhotoUri == null) return
 
         val imageFileName = UUID.randomUUID().toString()
         val ref = FirebaseStorage.getInstance().getReference("images/$imageFileName")
-        ref.putFile(selectedPhotoUri!!).addOnSuccessListener {
+        ref.putFile(editSettingsViewModel.selectedPhotoUri!!).addOnSuccessListener {
             ref.downloadUrl.addOnSuccessListener {
                 saveUserToFireStore(it.toString())
             }
         }
     }
 
+    private fun setPhoto(){
+        var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, editSettingsViewModel.selectedPhotoUri)
+        bitmap = editSettingsViewModel.selectedPhotoUri?.let { rotateImageIfNeeded(bitmap, it) }
+        profilePicImgView.setImageBitmap(bitmap)
+        select_photo_edit_settings.alpha = 0f
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == 0 && resultCode == Activity.RESULT_OK && data != null){
-            selectedPhotoUri = data.data
-            var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedPhotoUri)
-            bitmap = selectedPhotoUri?.let { rotateImageIfNeeded(bitmap, it) }
-            profilePicImgView.setImageBitmap(bitmap)
-
-            select_photo_edit_settings.alpha = 0f
+            editSettingsViewModel.selectedPhotoUri = data.data
+            setPhoto()
         }
     }
     override fun onResume() {
-        val thisIntent = intent
-        if (thisIntent.getStringExtra("school") != null) {
-            theSchool = thisIntent.getStringExtra("school")!!
-            binding.editSettingsSchool.text = theSchool
-        }
+//        val thisIntent = intent
+//        if (thisIntent.getStringExtra("school") != null) {
+//            editSettingsViewModel.school = thisIntent.getStringExtra("school")!!
+//            binding.editSettingsSchool.text = editSettingsViewModel.school
+//        }
+        setSchool()
         super.onResume()
 
 
@@ -172,6 +199,14 @@ class EditSettingsActivity : AppCompatActivity() {
                 binding.editSettingsEmail.isEnabled = connectivity.available()
             }
 
+    }
+
+    private fun setSchool(){
+        val thisIntent = intent
+        if (thisIntent.getStringExtra("school") != null) {
+            editSettingsViewModel.school = thisIntent.getStringExtra("school")!!
+            binding.editSettingsSchool.text = editSettingsViewModel.school
+        }
     }
 
     private fun rotateImageIfNeeded(image: Bitmap, imageUri: Uri): Bitmap {

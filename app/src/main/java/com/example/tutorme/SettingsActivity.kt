@@ -41,28 +41,12 @@ class SettingsActivity : AppCompatActivity() {
                 document(FirebaseAuth.getInstance().currentUser!!.uid)
             databaseUserEntry.get().addOnSuccessListener {
                 settingsViewModel.currentUser = it.toObject(Student::class.java)!!
-                loadTextAndPicture(it.toObject(Student::class.java)!!)
+                settingsViewModel.email = FirebaseAuth.getInstance().currentUser?.email.toString()
+                loadTextAndPicture(it.toObject(Student::class.java)!!, settingsViewModel.email!!)
             }
         } else {
-            loadTextAndPicture(user)
+            settingsViewModel.email?.let { loadTextAndPicture(user, it) }
         }
-
-
-//        val db = FirebaseFirestore.getInstance()
-//        val student =
-//            db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
-//        var oldSettings: Student?
-//        student.get().addOnSuccessListener { documentSnapshot ->
-//            oldSettings = documentSnapshot.toObject(Student::class.java)
-//
-//            binding.settingsEmail.text = FirebaseAuth.getInstance().currentUser?.email
-//            binding.settingsFirstName.text = oldSettings?.first_name
-//            binding.settingsLastName.text = oldSettings?.last_name
-//            binding.settingsProfilePictureUrl.text = oldSettings?.profile_picture_url
-//            binding.settingsSchool.text = oldSettings?.school
-//        }
-
-
 
         binding.settingsEditButton.setOnClickListener {
             val intent = Intent(this, EditSettingsActivity::class.java)
@@ -82,8 +66,8 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadTextAndPicture(user: Student){
-        binding.settingsEmail.text = user.email
+    private fun loadTextAndPicture(user: Student, email: String){
+        binding.settingsEmail.text =  email ?: "ERROR"
         binding.settingsFirstName.text = user.first_name
         binding.settingsLastName.text = user.last_name
         binding.settingsProfilePictureUrl.text = user.profile_picture_url

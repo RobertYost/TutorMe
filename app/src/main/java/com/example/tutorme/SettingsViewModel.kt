@@ -7,4 +7,5 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class SettingsViewModel: ViewModel() {
     var currentUser: Student? = null
+    var email: String? = null
 }
