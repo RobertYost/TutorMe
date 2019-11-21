@@ -31,7 +31,6 @@ import kotlin.system.exitProcess
 
 class ClassListAdapter(options: FirestoreRecyclerOptions<Class>) :
     FirestoreRecyclerAdapter<Class, ClassListAdapter.ViewHolder>(options) {
-
     private lateinit var toDelete: Class
     private  lateinit var vg: ViewGroup
 

@@ -19,6 +19,10 @@ import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.os.Handler
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 
 class AddClassActivity : AppCompatActivity() {
@@ -26,11 +30,32 @@ class AddClassActivity : AppCompatActivity() {
     // Using view-binding from arch-components (requires Android Studio 3.6 Canary 11+)
     private lateinit var binding: ActivityAddClassBinding
     private lateinit var curUser: Student
+    private var internetDisposable: Disposable? = null
 
     fun invalidClass(mjr: String, crsNum: String, radChecked: Number): Boolean {
         return (mjr.isEmpty()
                 || crsNum.isEmpty()
                 || radChecked == -1)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        internetDisposable = ReactiveNetwork.observeNetworkConnectivity(this)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .distinctUntilChanged()
+            .subscribe { connectivity ->
+                binding.addClassAddButton.isEnabled = connectivity.available()
+                if (!connectivity.available()) {
+                    Toast.makeText(this, "Network currently unavailable - cannot add class at this time.", Toast.LENGTH_LONG).show()
+                }
+            }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        ObservableUtils.safelyDispose(internetDisposable)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

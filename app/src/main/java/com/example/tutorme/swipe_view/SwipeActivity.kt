@@ -25,13 +25,18 @@ import kotlinx.android.synthetic.main.nav_header.view.*
 import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
-
+import android.widget.Toast
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 
 private const val TAG = "SwipeActivity"
 
 class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, ClassListInterface {
+    private var internetDisposable: Disposable? = null
+
     // Handles the item selection in the drawer
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -151,7 +156,6 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     }
 
     override fun onResume() {
-
         val action = intent.action
         // Prevent endless loop by adding a unique action, don't restart if action is present
         if (action == null || action != "Already created") {
@@ -161,7 +165,29 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             startActivity(intent)
             finish()
         }
+
+        internetDisposable = ReactiveNetwork.observeNetworkConnectivity(this)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .distinctUntilChanged()
+            .subscribe { connectivity ->
+                if (!connectivity.available()) {
+                    Toast.makeText(this, "Network currently unavailable.", Toast.LENGTH_LONG).show()
+                }
+            }
+
         super.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        safelyDispose(internetDisposable)
+    }
+
+    private fun safelyDispose(disposable: Disposable?) {
+        if (disposable != null && !disposable.isDisposed) {
+            disposable.dispose()
+        }
     }
 
     override fun onBackPressed() {

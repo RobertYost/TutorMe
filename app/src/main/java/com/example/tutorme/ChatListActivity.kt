@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,12 +15,16 @@ import com.example.tutorme.models.ChatLog
 import com.example.tutorme.models.ChatMessage
 import com.example.tutorme.models.Student
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_chat_list.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
 
@@ -34,6 +39,7 @@ class ChatListActivity : AppCompatActivity() {
     private val adapter = GroupAdapter<GroupieViewHolder>()
     val latestMessagesMap = HashMap<String, ChatMessage>()
     private lateinit var curUser: Student
+    private var internetDisposable: Disposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,9 +69,28 @@ class ChatListActivity : AppCompatActivity() {
         fetchCurrentUser()
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        internetDisposable = ReactiveNetwork.observeNetworkConnectivity(this)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .distinctUntilChanged()
+            .subscribe { connectivity ->
+                if (!connectivity.available()) {
+                    Toast.makeText(this, "Network currently unavailable - cannot chat at this time.", Toast.LENGTH_LONG).show()
+                }
+            }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        ObservableUtils.safelyDispose(internetDisposable)
+    }
+
     private fun refreshRecyclerViewMessages(){
         adapter.clear()
-        latestMessagesMap.values.forEach{
+        latestMessagesMap.values.forEach {
             adapter.add(LatestMessageRow(it))
         }
     }
