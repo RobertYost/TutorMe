@@ -3,6 +3,7 @@ package com.example.tutorme
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -32,6 +33,7 @@ class ChatListActivity : AppCompatActivity() {
 
     private val adapter = GroupAdapter<GroupieViewHolder>()
     val latestMessagesMap = HashMap<String, ChatMessage>()
+    private lateinit var curUser: Student
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +41,16 @@ class ChatListActivity : AppCompatActivity() {
 
         recyclerview_latestmessages.adapter = adapter
         recyclerview_latestmessages.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+
+        if (savedInstanceState == null) {
+            val extras = this.intent.extras
+            curUser = extras!!.get("cur_user") as Student
+            Log.d("DEBUG", curUser.toString())
+        }
+
+        val parIntent = Intent()
+        parIntent.putExtra("cur_user", curUser)
+        setResult(RESULT_OK, parIntent)
 
         adapter.setOnItemClickListener { item, view ->
             val intent = Intent(this, ChatActivity::class.java)

@@ -5,18 +5,19 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.example.tutorme.models.Student
 import com.example.tutorme.swipe_view.SwipeActivity
 import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.google.firebase.firestore.core.FirestoreClient
 
 
 private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
+
+    private var curUser: Student? = null
 
     private fun createSignInIntent() {
         val providers = arrayListOf(
@@ -53,7 +54,6 @@ class MainActivity : AppCompatActivity() {
                 db.firestoreSettings = settings
 
                 var intentChoice = "swipe"
-                Log.d("DEBUG", FirebaseAuth.getInstance().currentUser!!.uid)
                 val docRef = db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
                 docRef.get()
                     .addOnSuccessListener { document ->
@@ -61,7 +61,8 @@ class MainActivity : AppCompatActivity() {
                             Log.d("DEBUG", "DOCUMENT NOT NULL")
                             intentChoice = "edit"
                         } else {
-                            Log.d("DEBUG", document.data.toString())
+                            Log.d("USER_DOC", document.data.toString())
+                            curUser= document.toObject(Student::class.java)!!
                         }
                     }
                     .addOnFailureListener{exception ->
@@ -84,9 +85,13 @@ class MainActivity : AppCompatActivity() {
                             }
 
                         } else {
-                            Intent(this, SwipeActivity::class.java)
+                            Intent(this, EditSettingsActivity::class.java)
                         }
                         Log.d(TAG, it.toString())
+                        if (curUser != null) {
+                            intent.putExtra("cur_user", curUser)
+                            Log.d("STUDENT_OBJ", curUser.toString())
+                        }
                         startActivity(intent as Intent?)
                     }
             } else {

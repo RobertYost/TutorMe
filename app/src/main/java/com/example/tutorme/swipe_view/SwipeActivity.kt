@@ -23,24 +23,32 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import kotlinx.android.synthetic.main.nav_header.*
 import kotlinx.android.synthetic.main.nav_header.view.*
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 
 private const val TAG = "SwipeActivity"
 
-class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, ClassListInterface {
     // Handles the item selection in the drawer
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_add_class -> {
                 val intent = Intent(this, AddClassActivity::class.java)
+                intent.putExtra("cur_user", curUser)
                 startActivity(intent)
             }
             R.id.nav_settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)
+                intent.putExtra("cur_user", curUser)
                 startActivity(intent)
             }
             R.id.nav_chat -> {
                 val intent = Intent(this, ChatListActivity::class.java)
+                intent.putExtra("cur_user", curUser)
                 startActivity(intent)
             }
             R.id.nav_sign_out -> {
@@ -58,9 +66,16 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         return true
     }
 
+    override fun restartActivity() {
+        val intent = intent
+        finish()
+        startActivity(intent)
+    }
+
     private lateinit var binding: ActivitySwipeBinding
     private lateinit var drawer: DrawerLayout
     private lateinit var navigationView: NavigationView
+    private lateinit var curUser: Student
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +86,12 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         val toolbar = binding.toolbar
         setSupportActionBar(toolbar)
         binding.recViewClassList.layoutManager = LinearLayoutManager(this)
+
+        if (savedInstanceState == null) {
+            val extras = this.intent.extras
+            curUser = extras!!.get("cur_user") as Student
+            Log.d("DEBUG", curUser.toString())
+        }
 
         // Handling setup for drawer and navigation view
         drawer = binding.drawerLayout
@@ -108,32 +129,25 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             drawer.addDrawerListener(toggle)
             toggle.syncState()
 
-            FirebaseAuth.getInstance().uid?.let { it ->
-                FirebaseFirestore.getInstance()
-                    .collection("students").document(it).get()
-                    .addOnSuccessListener { outerIt ->
-                        val user = outerIt.toObject(Student::class.java)
 
-                        // Making a query to discover which classes we will seek tutors for
-                        val usersClasses = FirebaseFirestore.getInstance()
-                            .collection("classes").whereEqualTo("student_id", user?.id)
+            // Making a query to discover which classes we will seek tutors for
+            val usersClasses = FirebaseFirestore.getInstance()
+                .collection("classes").whereEqualTo("student_id", curUser.id)
 
-                        val builder = FirestoreRecyclerOptions.Builder<Class>()
-                            .setQuery(usersClasses, Class::class.java).setLifecycleOwner(this)
+            val builder = FirestoreRecyclerOptions.Builder<Class>()
+                .setQuery(usersClasses, Class::class.java).setLifecycleOwner(this)
 
-                        //) { snapshot ->
-                        //                            snapshot.toObject(Class::class.java)!!.also {
-                        //                                it.student_id = snapshot.id
-                        //                                it.dpt_code = snapshot["dpt_code"].toString()
-                        //                                it.class_code = snapshot["class_code"].toString()
-                        //                            }
-                        //                        }
+            //) { snapshot ->
+            //                            snapshot.toObject(Class::class.java)!!.also {
+            //                                it.student_id = snapshot.id
+            //                                it.dpt_code = snapshot["dpt_code"].toString()
+            //                                it.class_code = snapshot["class_code"].toString()
+            //                            }
+            //                        }
 
-                        val options = builder.build()
-                        val adapter = ClassListAdapter(options)
-                        binding.recViewClassList.adapter = adapter
-                    }
-            }
+            val options = builder.build()
+            val adapter = ClassListAdapter(options)
+            binding.recViewClassList.adapter = adapter
         }
     }
 
@@ -144,6 +158,7 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         if (action == null || action != "Already created") {
             Log.v("DEBUG", "Force restart")
             val intent = Intent(this, SwipeActivity::class.java)
+            intent.putExtra("cur_user", curUser)
             startActivity(intent)
             finish()
         }

@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import android.app.PendingIntent
 import android.content.Context
 import com.example.tutorme.MainActivity
+import com.firebase.ui.auth.AuthUI
 import kotlin.system.exitProcess
 
 
@@ -41,6 +42,7 @@ class ClassListAdapter(options: FirestoreRecyclerOptions<Class>) :
         return ViewHolder(cellForRow)
     }
 
+    @SuppressLint("InflateParams")
     private fun onButtonShowPopupWindowClick(view: View) {
 
         // inflate the layout of the popup window
@@ -58,7 +60,7 @@ class ClassListAdapter(options: FirestoreRecyclerOptions<Class>) :
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0)
 
         // dismiss the popup window when touched
-        popupView.setOnTouchListener(View.OnTouchListener { v, event ->
+        popupView.setOnTouchListener { _, _ ->
             popupWindow.dismiss()
             var docToDelete = "default"
             FirebaseFirestore.getInstance().collection("classes")
@@ -74,27 +76,19 @@ class ClassListAdapter(options: FirestoreRecyclerOptions<Class>) :
                         FirebaseFirestore.getInstance().collection("classes")
                             .document(docToDelete).delete().addOnSuccessListener {
                                 Toast.makeText(vg.context, "Successfully deleted the class", Toast.LENGTH_LONG).show()
-                                val mStartActivity = Intent(vg.context, MainActivity::class.java)
-                                val mPendingIntentId = 123456
-                                val mPendingIntent = PendingIntent.getActivity(
-                                    vg.context,
-                                    mPendingIntentId,
-                                    mStartActivity,
-                                    PendingIntent.FLAG_CANCEL_CURRENT
-                                )
-                                val mgr =
-                                    vg.context.getSystemService(ALARM_SERVICE) as AlarmManager
-                                mgr.set(
-                                    AlarmManager.RTC,
-                                    System.currentTimeMillis() + 100,
-                                    mPendingIntent
-                                )
-                                exitProcess(0)
+                                val intent = Intent(vg.context, MainActivity::class.java)
+                                AuthUI.getInstance()
+                                    .signOut(vg.context)
+                                    .addOnCompleteListener {
+                                        // user is now signed out
+                                        vg.context.startActivity(intent)
+                                        (vg.context as SwipeActivity).finish()
+                                    }
                             }
                     }
                 }
             true
-        })
+        }
     }
 
     @SuppressLint("SetTextI18n")

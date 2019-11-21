@@ -1,7 +1,6 @@
 package com.example.tutorme
 
 import android.app.Activity
-import android.content.ContentResolver
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Matrix
@@ -12,7 +11,6 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tutorme.databinding.ActivityEditSettingsBinding
 import com.example.tutorme.models.Student
@@ -25,8 +23,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_edit_settings.*
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.util.*
 
 private const val TAG = "editsettings"
@@ -128,8 +124,13 @@ class EditSettingsActivity : AppCompatActivity() {
             db.collection("students").document(FirebaseAuth.getInstance().currentUser!!.uid)
                 .set(settings)
 
+            val curUser = Student (settings["id"], settings["first_name"], settings["last_name"],
+                FirebaseAuth.getInstance().currentUser!!.email, settings["profile_picture_url"],
+                settings["school"])
+
             // Redirects back to the tutor list page after saving
             val intent = Intent(this, SwipeActivity::class.java)
+            intent.putExtra("cur_user", curUser)
             startActivity(intent)
         }
     }

@@ -2,6 +2,7 @@ package com.example.tutorme
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
@@ -13,12 +14,18 @@ import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.android.synthetic.main.activity_add_class.view.*
 import java.util.*
 import kotlin.collections.HashMap
+import androidx.core.os.HandlerCompat.postDelayed
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.os.Handler
 
 
 class AddClassActivity : AppCompatActivity() {
 
     // Using view-binding from arch-components (requires Android Studio 3.6 Canary 11+)
     private lateinit var binding: ActivityAddClassBinding
+    private lateinit var curUser: Student
 
     fun invalidClass(mjr: String, crsNum: String, radChecked: Number): Boolean {
         return (mjr.isEmpty()
@@ -32,6 +39,12 @@ class AddClassActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val db = FirebaseFirestore.getInstance()
+
+        if (savedInstanceState == null) {
+            val extras = this.intent.extras
+            curUser = extras!!.get("cur_user") as Student
+            Log.d("DEBUG", curUser.toString())
+        }
 
         binding.addClassRadioGroup.add_class_tutor.setOnClickListener {
             binding.addClassTutorPricePlaceholder.isEnabled = true
@@ -51,18 +64,12 @@ class AddClassActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please make sure to fill out all the fields!",
                     Toast.LENGTH_SHORT).show()
             } else {
-                val doc = db.collection("students").document(FirebaseAuth
-                    .getInstance().currentUser!!.uid)
-                var userSchool: String
-                doc.get().addOnSuccessListener {
-                    userSchool = it.toObject(Student::class.java)?.school.toString()
-
                     // Prepares the settings based on the fields
                     val settings = hashMapOf(
                         "student_id" to FirebaseAuth.getInstance().currentUser!!.uid,
                         "is_tutor" to binding.addClassTutor.isChecked,
                         "tutor_price" to binding.addClassTutorPricePlaceholder.text.toString(),
-                        "school" to userSchool,
+                        "school" to curUser.school,
                         "dpt_code" to binding.addClassMajorPlaceholder.text.toString().toUpperCase(
                             Locale.ROOT),
                         "class_code" to binding.addClassCourseNumber.text.toString()
@@ -77,10 +84,6 @@ class AddClassActivity : AppCompatActivity() {
                     classDoc.addSnapshotListener { querySnapshot, _ ->
                         checkDuplicate(querySnapshot, db, settings)
                     }
-
-
-
-                }
             }
         }
     }
@@ -88,7 +91,7 @@ class AddClassActivity : AppCompatActivity() {
     private fun checkDuplicate(
         querySnapshot: QuerySnapshot?,
         db: FirebaseFirestore,
-        settings: HashMap<String, Any>
+        settings: HashMap<String, Any?>
     ) {
         if (querySnapshot!!.isEmpty) {
             // Adds or updates the document to the students collection based on the login email used
@@ -96,9 +99,14 @@ class AddClassActivity : AppCompatActivity() {
 
             // Redirects back to the tutor list page after saving
             val intent = Intent(this, SwipeActivity::class.java)
+            intent.putExtra("cur_user", curUser)
             startActivity(intent)
         } else {
-            binding.addClassError.setText(R.string.add_class_duplicate)
+            val handler = Handler()
+            handler.postDelayed({
+                binding.addClassError.setText(R.string.add_class_duplicate) //Add error text
+            }, 250) // 250ms delay
+
         }
     }
 }

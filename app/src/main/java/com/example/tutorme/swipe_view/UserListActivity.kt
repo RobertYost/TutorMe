@@ -96,22 +96,14 @@ class UserListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                         }
                         FirebaseFirestore.getInstance().collection("classes")
                             .document(docToDelete).delete().addOnSuccessListener {
-                                val mStartActivity = Intent(this, MainActivity::class.java)
-                                val mPendingIntentId = 123456
-                                val mPendingIntent = PendingIntent.getActivity(
-                                    this,
-                                    mPendingIntentId,
-                                    mStartActivity,
-                                    PendingIntent.FLAG_CANCEL_CURRENT
-                                )
-                                val mgr =
-                                    this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                                mgr.set(
-                                    AlarmManager.RTC,
-                                    System.currentTimeMillis() + 100,
-                                    mPendingIntent
-                                )
-                                exitProcess(0)
+                                val intent = Intent(this, MainActivity::class.java)
+                                AuthUI.getInstance()
+                                    .signOut(this)
+                                    .addOnCompleteListener {
+                                        // user is now signed out
+                                        startActivity(intent)
+                                        finish()
+                                    }
                             }
                     }
                 }

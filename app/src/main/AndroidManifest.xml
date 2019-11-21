@@ -17,10 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChatActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".swipe_view.SwipeActivity"/>
-        </activity>
+        <activity android:name=".ChatActivity" />
         <activity android:name=".EditSettingsActivity" />
         <activity android:name=".AddSchoolActivity" />
         <activity android:name=".AddClassActivity" />
@@ -33,10 +30,7 @@
         <activity
             android:name=".swipe_view.UserListActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ChatListActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".swipe_view.SwipeActivity"/>
-        </activity>
+        <activity android:name=".ChatListActivity" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
