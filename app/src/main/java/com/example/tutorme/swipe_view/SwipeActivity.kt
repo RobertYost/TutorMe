@@ -20,7 +20,6 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
 import kotlinx.android.synthetic.main.nav_header.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 import androidx.core.app.ComponentActivity.ExtraData
@@ -115,7 +114,7 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                             FirebaseAuth.getInstance().currentUser?.email
                         var profilePic = user?.profile_picture_url
                         if (user?.profile_picture_url == null || user.profile_picture_url!!.isEmpty()) {
-                            profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
+                            profilePic = SettingsActivity.DEFAULT_PROFILE_PICTURE
                         }
                         //Picasso.get().load(profilePic).into(nav_profile_pic)
                         Glide.with(this).load(profilePic).into(nav_profile_pic)

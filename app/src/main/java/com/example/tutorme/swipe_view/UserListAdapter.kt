@@ -17,7 +17,6 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.squareup.picasso.Picasso
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.user_row.view.*
 
@@ -63,7 +62,7 @@ class UserListAdapter(options: FirestoreRecyclerOptions<Class>) :
                         var profilePic = user?.profile_picture_url
                         if (user != null) {
                             if (user.profile_picture_url == null || user.profile_picture_url!!.isEmpty()) {
-                                profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
+                                profilePic = SettingsActivity.DEFAULT_PROFILE_PICTURE
                             }
                         }
                         //Picasso.get().load(profilePic).into(profilepic_imageview_user_row)

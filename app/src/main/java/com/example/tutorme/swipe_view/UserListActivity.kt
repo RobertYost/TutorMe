@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.tutorme.databinding.ActivitySwipeBinding
 import com.example.tutorme.models.Student
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.navigation.NavigationView
@@ -24,7 +23,6 @@ import com.example.tutorme.*
 import com.example.tutorme.databinding.ActivityUserListBinding
 import com.example.tutorme.models.Class
 import com.firebase.ui.auth.AuthUI
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.nav_header.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 import kotlin.system.exitProcess
@@ -128,7 +126,7 @@ class UserListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                         FirebaseAuth.getInstance().currentUser?.email
                     var profilePic = user?.profile_picture_url
                     if (user?.profile_picture_url == null || user.profile_picture_url!!.isEmpty()) {
-                        profilePic = SettingsActivity.DEFUALT_PROFILE_PICTURE
+                        profilePic = SettingsActivity.DEFAULT_PROFILE_PICTURE
                     }
                     Glide.with(this).load(profilePic).into(nav_profile_pic)
 
