@@ -1,7 +1,6 @@
 package com.example.tutorme.swipe_view
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -9,40 +8,40 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.PopupWindow
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tutorme.models.Class
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.extensions.LayoutContainer
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.startActivity
 import kotlinx.android.synthetic.main.user_row.view.*
-import android.app.AlarmManager
-import android.content.Context.ALARM_SERVICE
-import androidx.core.content.ContextCompat.getSystemService
-import android.app.PendingIntent
-import android.content.Context
-import com.example.tutorme.MainActivity
-import com.firebase.ui.auth.AuthUI
-import kotlin.system.exitProcess
+import android.os.Handler
+import android.util.Log
+import com.example.tutorme.models.Student
 
 
-class ClassListAdapter(options: FirestoreRecyclerOptions<Class>) :
+class ClassListAdapter(
+    options: FirestoreRecyclerOptions<Class>,
+    curUser: Student
+) :
     FirestoreRecyclerAdapter<Class, ClassListAdapter.ViewHolder>(options) {
     private lateinit var toDelete: Class
-    private  lateinit var vg: ViewGroup
+    private lateinit var vg: ViewGroup
+    private var stud = curUser
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val cellForRow = layoutInflater.inflate(com.example.tutorme.R.layout.user_row, parent, false)
+        val cellForRow =
+            layoutInflater.inflate(com.example.tutorme.R.layout.user_row, parent, false)
         vg = parent
+        this.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+        })
+        Log.d("HERE", "ADDED")
         return ViewHolder(cellForRow)
     }
 
     @SuppressLint("InflateParams")
-    private fun onButtonShowPopupWindowClick(view: View) {
+    private fun onButtonShowPopupWindowClick(view: View, position: Int) {
 
         // inflate the layout of the popup window
         val inflater = LayoutInflater.from(view.context)
@@ -61,31 +60,33 @@ class ClassListAdapter(options: FirestoreRecyclerOptions<Class>) :
         // dismiss the popup window when touched
         popupView.setOnTouchListener { _, _ ->
             popupWindow.dismiss()
-            var docToDelete = "default"
+            var dDoc = "default"
             FirebaseFirestore.getInstance().collection("classes")
                 .whereEqualTo("school", toDelete.school)
                 .whereEqualTo("dpt_code", toDelete.dpt_code)
                 .whereEqualTo("class_code", toDelete.class_code)
                 .whereEqualTo("student_id", toDelete.student_id)
-                .addSnapshotListener { querySnapshot, _ ->
-                    if (querySnapshot != null) {
-                        for (doc in querySnapshot.documents){
-                            docToDelete = doc.id
-                        }
-                        FirebaseFirestore.getInstance().collection("classes")
-                            .document(docToDelete).delete().addOnSuccessListener {
-                                Toast.makeText(vg.context, "Successfully deleted the class", Toast.LENGTH_LONG).show()
-                                val intent = Intent(vg.context, MainActivity::class.java)
-                                AuthUI.getInstance()
-                                    .signOut(vg.context)
-                                    .addOnCompleteListener {
-                                        // user is now signed out
-                                        vg.context.startActivity(intent)
-                                        (vg.context as SwipeActivity).finish()
-                                    }
-                            }
-                    }
+                .get()
+                .addOnSuccessListener { docToDelete ->
+                    dDoc = docToDelete.documents.last().id
+                    Log.d("HERE", "dDoc set to $dDoc")
                 }
+                .addOnFailureListener { exception ->
+                    Log.d("HERERROR", "Error getting documents: ", exception)
+                }
+            val handler = Handler()
+            handler.postDelayed({
+                Log.d("HERE", dDoc +" is this" )
+                if (dDoc != "default"){
+                    Log.d("HERE", dDoc)
+                    FirebaseFirestore.getInstance().collection("classes").document(dDoc).delete().addOnSuccessListener {
+                        Log.d("HERE", dDoc + " deleted")
+                    }
+                    notifyDataSetChanged()
+                }
+            }, 250) // 250ms delay
+
+
             true
         }
     }
@@ -95,10 +96,11 @@ class ClassListAdapter(options: FirestoreRecyclerOptions<Class>) :
         holder.containerView.setOnClickListener {
             if (item.is_tutor == true) {
                 toDelete = item
-                onButtonShowPopupWindowClick(holder.containerView)
+                onButtonShowPopupWindowClick(holder.containerView, position)
             } else {
                 val intent = Intent(holder.containerView.context, UserListActivity::class.java)
                 intent.putExtra("WHICH_CLASS", item)
+                intent.putExtra("cur_user", stud)
                 holder.containerView.context.startActivity(intent)
             }
 
@@ -108,9 +110,11 @@ class ClassListAdapter(options: FirestoreRecyclerOptions<Class>) :
             primaryTextView.text = "${item.dpt_code} " +
                     item.class_code
             if (item.is_tutor == true) {
-                secondaryTextView.text = context.getString(com.example.tutorme.R.string.class_list_tutor)
+                secondaryTextView.text =
+                    context.getString(com.example.tutorme.R.string.class_list_tutor)
             } else {
-                secondaryTextView.text = context.getString(com.example.tutorme.R.string.class_list_student)
+                secondaryTextView.text =
+                    context.getString(com.example.tutorme.R.string.class_list_student)
             }
         }
     }

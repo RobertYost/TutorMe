@@ -18,6 +18,7 @@ import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
+import androidx.core.text.isDigitsOnly
 import com.bumptech.glide.Glide
 import com.example.tutorme.*
 import com.example.tutorme.databinding.ActivityUserListBinding
@@ -65,6 +66,7 @@ class UserListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private lateinit var drawer: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var WHICH_CLASS: Class
+    private lateinit var curUser: Student
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +77,11 @@ class UserListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         setSupportActionBar(toolbar)
         binding.recViewUserList.layoutManager = LinearLayoutManager(this)
 
+        if (savedInstanceState == null) {
+            val extras = this.intent.extras
+            curUser = extras!!.get("cur_user") as Student
+            Log.d("DEBUG", curUser.toString())
+        }
         WHICH_CLASS = intent.getParcelableExtra("WHICH_CLASS")!!
 
         var docToDelete = "none"
@@ -94,14 +101,10 @@ class UserListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                         }
                         FirebaseFirestore.getInstance().collection("classes")
                             .document(docToDelete).delete().addOnSuccessListener {
-                                val intent = Intent(this, MainActivity::class.java)
-                                AuthUI.getInstance()
-                                    .signOut(this)
-                                    .addOnCompleteListener {
-                                        // user is now signed out
-                                        startActivity(intent)
-                                        finish()
-                                    }
+                                Log.d("HERE", docToDelete + " deleted")
+                                val intent = Intent(this, SwipeActivity::class.java)
+                                intent.putExtra("cur_user", curUser)
+                                startActivity(intent)
                             }
                     }
                 }

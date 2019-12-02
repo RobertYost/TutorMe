@@ -31,6 +31,7 @@ class AddClassActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddClassBinding
     private lateinit var curUser: Student
     private var internetDisposable: Disposable? = null
+    private var isFront: Boolean = true
 
     fun invalidClass(mjr: String, crsNum: String, radChecked: Number): Boolean {
         return (mjr.isEmpty()
@@ -40,7 +41,7 @@ class AddClassActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
+        isFront = true
         internetDisposable = ReactiveNetwork.observeNetworkConnectivity(this)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -55,6 +56,7 @@ class AddClassActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        isFront = false
         ObservableUtils.safelyDispose(internetDisposable)
     }
 
@@ -62,6 +64,8 @@ class AddClassActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAddClassBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        isFront = true
 
         val db = FirebaseFirestore.getInstance()
 
@@ -118,20 +122,23 @@ class AddClassActivity : AppCompatActivity() {
         db: FirebaseFirestore,
         settings: HashMap<String, Any?>
     ) {
-        if (querySnapshot!!.isEmpty) {
-            // Adds or updates the document to the students collection based on the login email used
-            db.collection("classes").document().set(settings)
+        if (isFront) {
+            if (querySnapshot!!.isEmpty) {
+                // Adds or updates the document to the students collection based on the login email used
+                db.collection("classes").document().set(settings)
 
-            // Redirects back to the tutor list page after saving
-            val intent = Intent(this, SwipeActivity::class.java)
-            intent.putExtra("cur_user", curUser)
-            startActivity(intent)
-        } else {
-            val handler = Handler()
-            handler.postDelayed({
-                binding.addClassError.setText(R.string.add_class_duplicate) //Add error text
-            }, 250) // 250ms delay
+                // Redirects back to the tutor list page after saving
+                val intent = Intent(this, SwipeActivity::class.java)
+                intent.putExtra("cur_user", curUser)
+                startActivity(intent)
+                finish()
+            } else {
+                val handler = Handler()
+                handler.postDelayed({
+                    binding.addClassError.setText(R.string.add_class_duplicate) //Add error text
+                }, 250) // 250ms delay
 
+            }
         }
     }
 }

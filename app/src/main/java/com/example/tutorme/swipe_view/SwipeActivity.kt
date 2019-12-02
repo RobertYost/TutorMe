@@ -22,9 +22,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.nav_header.*
 import kotlinx.android.synthetic.main.nav_header.view.*
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.widget.Toast
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -150,7 +147,7 @@ class SwipeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             //                        }
 
             val options = builder.build()
-            val adapter = ClassListAdapter(options)
+            val adapter = ClassListAdapter(options, curUser)
             binding.recViewClassList.adapter = adapter
         }
     }

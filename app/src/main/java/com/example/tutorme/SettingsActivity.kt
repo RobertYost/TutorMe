@@ -61,6 +61,19 @@ class SettingsActivity : AppCompatActivity() {
                 .delete()
                 .addOnSuccessListener { Log.d("DELETE", "DocumentSnapshot successfully deleted!") }
                 .addOnFailureListener { e -> Log.w("DEBUG", "Error deleting document", e) }
+            FirebaseFirestore.getInstance().collection("classes")
+                .whereEqualTo("student_id", curUser.id)
+                .get()
+                .addOnSuccessListener { docs ->
+                    for (doc in docs){
+                        FirebaseFirestore.getInstance().collection("classes").document(doc.id).delete().addOnSuccessListener {
+                            Log.d("DELETEACC", "deleted class ${doc.id}")
+                        }
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.d("HERE", "Error getting documents: ", exception)
+                }
             val intent = Intent(this, EditSettingsActivity::class.java)
             startActivity(intent)
         }
